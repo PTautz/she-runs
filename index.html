@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elas escreveram o código — de Ada Lovelace a 2026</title>
+<meta name="description" content="Linha do tempo interativa em pixel art sobre mulheres na computação, das computadoras humanas da NASA às pesquisadoras premiadas em 2026. Todas as fontes citadas.">
+<meta property="og:title" content="Elas escreveram o código">
+<meta property="og:description" content="Linha do tempo interativa em pixel art: mulheres na computação de 1843 a 2026.">
+<meta property="og:type" content="website">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0a14; --panel:#151327; --panel-hi:#1e1b36; --line:#2e2a4d;
+  --text:#e8e6f5; --dim:#9490b8;
+  --pixel:'Press Start 2P',monospace; --sans:'DM Sans',-apple-system,sans-serif;
+  --eraC:#c77dff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden}
+body{padding:0 0 3rem}
+#stars{position:fixed;inset:0;z-index:0;image-rendering:pixelated;opacity:.75}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px)}
+.wrap{position:relative;z-index:2;max-width:1000px;margin:0 auto;padding:0 18px}
+
+header{text-align:center;padding:3.5rem 0 2.2rem}
+h1{font-family:var(--pixel);font-size:clamp(.9rem,3.1vw,1.55rem);line-height:1.95;margin:0 0 16px;
+  color:#fff;text-shadow:3px 3px 0 #6b3fd4,6px 6px 0 rgba(107,63,212,.25)}
+.tagline{font-size:.92rem;color:var(--dim);margin:0;line-height:1.7}
+.count-strip{display:flex;justify-content:center;gap:28px;margin-top:24px;flex-wrap:wrap}
+.stat b{display:block;font-family:var(--pixel);font-size:1.05rem;color:#f7c343;margin-bottom:6px}
+.stat span{font-size:.62rem;color:var(--dim);text-transform:uppercase;letter-spacing:.12em}
+
+.eras{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:2rem}
+.era{background:var(--panel);border:2px solid var(--line);padding:16px 10px;cursor:pointer;
+  text-align:center;transition:transform .12s,border-color .12s,box-shadow .12s;image-rendering:pixelated}
+.era:hover{transform:translate(-2px,-2px);border-color:var(--eC);box-shadow:4px 4px 0 var(--eC)}
+.era.on{border-color:var(--eC);background:var(--panel-hi);transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--eC)}
+.era svg{width:54px;height:54px;display:block;margin:0 auto 10px}
+.era .lbl{font-family:var(--pixel);font-size:.53rem;line-height:1.75}
+.era .yr{font-size:.64rem;color:var(--dim);margin-top:7px;letter-spacing:.04em}
+
+#eraInfo{border-left:4px solid var(--eraC);background:var(--panel);padding:16px 20px;margin-bottom:1.8rem;display:none}
+#eraInfo.show{display:block;animation:fade .35s ease}
+#eraInfo h2{font-family:var(--pixel);font-size:.7rem;line-height:1.85;margin:0 0 11px;color:var(--eraC)}
+#eraInfo p{font-size:.88rem;line-height:1.8;color:var(--dim);margin:0}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:14px}
+.card{background:var(--panel);border:2px solid var(--line);padding:14px 9px;text-align:center;
+  cursor:pointer;transition:transform .12s,border-color .12s;opacity:0}
+.card.in{opacity:1;animation:pop .32s ease}
+@keyframes pop{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:none}}
+.card:hover{transform:translateY(-4px);border-color:var(--eraC)}
+.card svg{width:64px;height:70px;display:block;margin:0 auto 10px}
+.card .nm{font-size:.79rem;font-weight:500;line-height:1.4;margin-bottom:6px}
+.card .yr{font-family:var(--pixel);font-size:.48rem;color:var(--eraC)}
+
+#detail{display:none;margin-top:1.8rem;background:var(--panel-hi);border:2px solid var(--eraC);position:relative}
+#detail.show{display:block;animation:fade .3s ease}
+.dhead{display:flex;gap:18px;align-items:flex-start;padding:22px 22px 20px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+.dhead svg{width:86px;height:94px;flex-shrink:0}
+.dmeta{flex:1;min-width:190px}
+.dyr{font-family:var(--pixel);font-size:.58rem;color:var(--eraC);margin-bottom:10px;display:block}
+.dmeta h3{font-size:1.18rem;font-weight:500;margin:0 0 8px;line-height:1.35}
+.role{font-size:.84rem;color:var(--dim);line-height:1.6;margin:0}
+.dbody{padding:20px 22px 24px}
+.dbody p{font-size:.89rem;line-height:1.85;color:#c9c6e0;margin:0 0 14px}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0 0}
+.tag{font-family:var(--pixel);font-size:.44rem;padding:6px 9px;background:var(--bg);
+  border:1px solid var(--eraC);color:var(--eraC);letter-spacing:.06em}
+.srcLink{display:inline-block;margin-top:16px;font-size:.76rem;color:var(--eraC);
+  text-decoration:none;border-bottom:1px dotted var(--eraC);padding-bottom:2px}
+.srcLink:hover{opacity:.75}
+.closeBtn{position:absolute;top:12px;right:12px;background:var(--bg);border:2px solid var(--line);
+  color:var(--dim);width:32px;height:32px;cursor:pointer;font-family:var(--pixel);font-size:.55rem}
+.closeBtn:hover{border-color:var(--eraC);color:var(--eraC)}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--line);font-size:.72rem;color:#6f6b90;line-height:1.85}
+footer b{color:var(--dim);font-weight:500}
+footer a{color:#8f8ab5}
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+<div class="scan"></div>
+
+<div class="wrap">
+<header>
+  <h1>Elas escreveram<br>o código</h1>
+  <p class="tagline">De Ada Lovelace, em 1843, às premiadas de 2026.<br>Escolha uma época. Clique em cada retrato.</p>
+  <div class="count-strip">
+    <div class="stat"><b id="sTotal">0</b><span>verbetes</span></div>
+    <div class="stat"><b>183</b><span>anos</span></div>
+    <div class="stat"><b>3</b><span>turing awards</span></div>
+  </div>
+</header>
+
+<div class="eras" id="eras"></div>
+<div id="eraInfo"></div>
+<div class="grid" id="grid"></div>
+<div id="detail"></div>
+
+<footer>
+  <b>Fontes por verbete:</b> cada painel tem link direto para a fonte principal.<br>
+  <b>Referências gerais:</b> NASA History Office · ACM Awards (Turing Award, Athena Lecturer, ACM-W Rising Star) ·
+  Japan Prize Foundation · Comissão Europeia, Prémio Europeu para Mulheres Inovadoras 2026 · Forbes 50 Over 50 (2026).<br>
+  <b>Método:</b> os anos exibidos são do feito, não de nascimento. Dados de 2025 e 2026 verificados
+  por busca em fontes primárias em agosto de 2026. Retratos são pixel art gerada por código, não fotografias.<br>
+  <b>Correções são bem-vindas</b> via issue no repositório.
+</footer>
+</div>
+
+<script>
+const ERAS = [
+  { id:'pioneer', label:'Pioneiras', years:'1843 – 1946', color:'#c77dff', icon:'gear',
+    ctx:'Antes dos computadores eletrônicos, "computador" era um cargo, não uma máquina. Mulheres faziam cálculos à mão em salas cheias de papel e réguas. Ada Lovelace escreveu um algoritmo um século antes de existir onde rodá-lo.' },
+  { id:'nasa', label:'Era NASA', years:'1949 – 1978', color:'#4cc9f0', icon:'rocket',
+    ctx:'A corrida espacial rodou sobre matemática feita por mulheres, muitas delas negras e trabalhando em salas separadas por lei. Quando as máquinas IBM chegaram para substituí-las, algumas aprenderam Fortran na biblioteca pública e viraram programadoras.' },
+  { id:'digital', label:'Era Digital', years:'1980 – 2005', color:'#5ddc9c', icon:'monitor',
+    ctx:'A infraestrutura da internet e as interfaces gráficas que usamos até hoje foram desenhadas nessa fase. Foi também quando a proporção de mulheres em cursos de computação nos EUA começou a cair, depois de atingir o pico em 1984.' },
+  { id:'modern', label:'Era da IA', years:'2009 – 2019', color:'#f7c343', icon:'neural',
+    ctx:'Datasets, ética algorítmica e visão computacional. As decisões técnicas dessa fase definiram o que a IA consegue ver e o que ela erra de forma sistemática. Boa parte da crítica interna veio de pesquisadoras que pagaram o preço por levantar a mão.' },
+  { id:'now', label:'Agora', years:'2025 – 2026', color:'#ff7b9c', icon:'quantum',
+    ctx:'O presente é desigual e está documentado. Em março de 2026, o Turing Award foi para dois homens, mantendo o placar em 3 mulheres entre mais de 70 laureados desde 1966. No mesmo período, Cynthia Dwork levou o Prêmio Japão, o Athena Lecturer premiou duas cientistas em ciclos consecutivos e o prêmio europeu de inovação foi para uma fundadora de healthtech.' },
+];
+
+const TPL = {
+  updo:["....HH......","...HHHH.....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSSMMMSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+  long:["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.",".HHSSMMMSSH.",".HHSSSSSSSH.",".HH.SSSSS.H.",".HH..SSS..H.","..CCCCCCCC..",".CCCCCCCCCC."],
+  afro:["..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHSSSSSSHHH","HHHSEESEESHH","HHHSSSSSSSHH",".HHSSMMMSSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+  short:["............","...HHHHHH...","..HHHHHHHH..","..HSSSSSSH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSS..","...SSSSSSS..","....SSSSS...","....SSSS....","..CCCCCCCC..",".CCCCCCCCCC."],
+  bun:[".....HH.....","....HHHH....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+};
+const SKIN = { l:'#f2c9a8', m:'#c98b5e', d:'#8a5533', dd:'#5f381f' };
+const HAIR = { blk:'#241c30', brn:'#5d3a24', gry:'#b9b4c9', wht:'#e4e0ee', red:'#a8442a' };
+
+function portrait(p, px){
+  const g = TPL[p.tpl];
+  const map = { H:HAIR[p.hair], S:SKIN[p.skin], E:'#1a1526', M:'#a8546a', C:p.shirt };
+  let r = '';
+  g.forEach((row,y)=>{
+    for(let x=0;x<row.length;x++){
+      const k = row[x];
+      if(k === '.') continue;
+      r += '<rect x="'+x+'" y="'+y+'" width="1" height="1" fill="'+map[k]+'"/>';
+    }
+  });
+  return '<svg viewBox="0 0 12 13" width="'+px+'" shape-rendering="crispEdges" role="img" aria-label="Retrato em pixel art de '+p.nm+'">'+r+'</svg>';
+}
+
+const ICONS = {
+  gear:[".....11.....","....1111....","..111111111.",".11111111111","11112211111.",".1122221111.",".1122221111.","11112211111.",".11111111111","..111111111.","....1111....",".....11....."],
+  rocket:[".....22.....","....2222....","....2332....","....2332....","...222222...","..22222222..","..21222212..","..21222212..","...2222222..","...4.44.4...","..44.44.44..","...4..4..4.."],
+  monitor:["111111111111","1..........1","1.22222222.1","1.23333332.1","1.23333332.1","1.23333332.1","1.22222222.1","1..........1","111111111111","....1111....","...111111...","..11111111.."],
+  neural:["1.........1.",".1...2...1..","..1..2..1...","...1.2.1....","22222222222.","...1.2.1....","..1..2..1...",".1...2...1..","1....2....1.","..3.....3...",".3.3...3.3..","3...3.3...3."],
+  quantum:["....2222....","..22....22..",".2........2.","2....11....2","2...1111...2","2...1111...2","2....11....2",".2........2.","..22....22..","....2222....","..3......3..",".3........3."],
+};
+function eraIcon(name, color){
+  const g = ICONS[name];
+  const sh = { '1':color, '2':color+'cc', '3':'#ffffff', '4':'#ff7b3f' };
+  let r = '';
+  g.forEach((row,y)=>{
+    for(let x=0;x<row.length;x++){
+      const k = row[x];
+      if(!sh[k]) continue;
+      r += '<rect x="'+x+'" y="'+y+'" width="1" height="1" fill="'+sh[k]+'"/>';
+    }
+  });
+  return '<svg viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">'+r+'</svg>';
+}
+
+const P = [
+/* ═══ PIONEIRAS ═══ */
+{ era:'pioneer', yr:'1843', nm:'Ada Lovelace', role:'Matemática · primeiro algoritmo publicado',
+  tpl:'updo', hair:'brn', skin:'l', shirt:'#7b4fd4',
+  tags:['algoritmo','máquina analítica'],
+  src:'https://www.britannica.com/biography/Ada-Lovelace', srcNm:'Britannica',
+  body:['Traduziu para o inglês um artigo do engenheiro italiano Luigi Menabrea sobre a Máquina Analítica de Charles Babbage e anexou notas próprias, três vezes maiores que o texto original.',
+        'Dentro dessas notas estava um algoritmo completo para calcular os números de Bernoulli, reconhecido hoje como o primeiro programa de computador publicado. A máquina para rodá-lo nunca foi construída em vida dela.',
+        'Foi também a primeira pessoa a registrar por escrito que aquelas máquinas poderiam manipular símbolos, e não apenas números, chegando a especular sobre composição musical. A linguagem Ada, usada em aviação e sistemas críticos, leva seu nome.']},
+
+{ era:'pioneer', yr:'1942', nm:'Hedy Lamarr', role:'Atriz e inventora · salto de frequência',
+  tpl:'long', hair:'blk', skin:'l', shirt:'#8a2d52',
+  tags:['frequência','wifi','patente'],
+  src:'https://www.womenshistory.org/education-resources/biographies/hedy-lamarr', srcNm:'National Women\'s History Museum',
+  body:['Estrela de Hollywood nos anos 1940 e inventora por conta própria. Junto com o compositor George Antheil, patenteou em 1942 um sistema de comunicação por salto de frequência, pensado para torpedos que não pudessem ser interceptados.',
+        'A Marinha dos Estados Unidos arquivou a patente e só voltou ao princípio depois que ela expirou. O mesmo conceito ressurge décadas mais tarde como base técnica de WiFi, Bluetooth e CDMA.',
+        'O reconhecimento formal veio apenas em 1997, com o prêmio pioneiro da Electronic Frontier Foundation, três anos antes da morte dela.']},
+
+{ era:'pioneer', yr:'1946', nm:'As Seis do ENIAC', role:'Programadoras do primeiro computador eletrônico',
+  tpl:'long', hair:'brn', skin:'l', shirt:'#6b4fa8',
+  tags:['eniac','sem manual','apagadas'],
+  src:'https://eniacprogrammers.org/', srcNm:'ENIAC Programmers Project',
+  body:['Jean Jennings Bartik, Frances Bilas Spence, Kay McNulty, Betty Holberton, Marlyn Wescoff e Ruth Lichterman programaram o ENIAC sem manual, sem linguagem de programação e sem exemplo anterior. O trabalho era físico: reconfigurar cabos e ajustar centenas de chaves.',
+        'Aprenderam a máquina lendo diagramas de engenharia elétrica, porque documentação de uso não existia.',
+        'Na demonstração pública do ENIAC, em fevereiro de 1946, elas apareciam nas fotos oficiais mas não foram apresentadas como programadoras. Durante décadas, arquivos as identificaram como modelos posando ao lado do equipamento. A correção histórica começou nos anos 1980.']},
+
+{ era:'pioneer', yr:'1952', nm:'Grace Hopper', role:'Contra-almirante · primeiro compilador',
+  tpl:'short', hair:'gry', skin:'l', shirt:'#2d4a8a',
+  tags:['compilador','cobol','bug'],
+  src:'https://www.history.navy.mil/content/history/nhhc/research/library/research-guides/grace-hopper.html', srcNm:'U.S. Naval History and Heritage Command',
+  body:['Programou o Harvard Mark I durante a Segunda Guerra e, em 1952, criou o A-0, o primeiro compilador da história, quando parte da comunidade considerava impossível traduzir automaticamente linguagem humana para código de máquina.',
+        'Defendia que programar deveria parecer com escrever em inglês. Essa insistência levou ao FLOW-MATIC e depois ao COBOL, linguagem que ainda roda sistemas bancários hoje.',
+        'O termo "bug" ficou popular porque a equipe dela registrou no log uma mariposa presa em um relé do Mark II. Serviu na Marinha americana até os 79 anos, aposentando-se como a oficial mais velha em serviço ativo.']},
+
+/* ═══ ERA NASA ═══ */
+{ era:'nasa', yr:'1949', nm:'Dorothy Vaughan', role:'Primeira supervisora negra da NACA · Fortran',
+  tpl:'updo', hair:'blk', skin:'dd', shirt:'#4a7c59',
+  tags:['fortran','west computing','requalificação'],
+  src:'https://www.nasa.gov/people/dorothy-vaughan-biography/', srcNm:'NASA',
+  body:['Assumiu em 1949 a chefia da seção West Computing, formada exclusivamente por matemáticas negras, divisão imposta por lei na Virgínia da época. Foi a primeira mulher negra a supervisionar um grupo na agência.',
+        'Quando a NACA anunciou que computadores IBM assumiriam o trabalho manual da equipe, Vaughan aprendeu Fortran por conta própria e ensinou a linguagem para todo o seu grupo. Nenhuma delas ficou obsoleta.',
+        'Contribuiu para o Scout Launch Vehicle Program e trabalhou 28 anos na instituição. É um caso raro e documentado de requalificação coletiva antecipada, décadas antes de a expressão virar jargão corporativo.']},
+
+{ era:'nasa', yr:'1955', nm:'Annie Easley', role:'Programadora da NASA · foguete Centaur',
+  tpl:'afro', hair:'blk', skin:'d', shirt:'#7ba82e',
+  tags:['centaur','energia','fortran'],
+  src:'https://www.nasa.gov/people/annie-easley-biography/', srcNm:'NASA',
+  body:['Entrou na NACA em 1955 como computadora humana e migrou para programação quando as máquinas chegaram, aprendendo Fortran e SOAP por conta própria.',
+        'Desenvolveu código para o foguete Centaur, estágio superior movido a hidrogênio líquido que viabilizou missões como a Cassini. Também trabalhou em análise de tecnologias de energia alternativa e sistemas de bateria.',
+        'Foi ativa em programas de recrutamento e mentoria da agência e falava abertamente sobre as barreiras que encontrou. Costumava dizer que, quando alguém tinha atitude preconceituosa, o problema era dessa pessoa, e ela seguia trabalhando.']},
+
+{ era:'nasa', yr:'1956', nm:'Gladys West', role:'Matemática naval · modelo geodésico do GPS',
+  tpl:'updo', hair:'blk', skin:'d', shirt:'#3f6fa8',
+  tags:['gps','geodésia','seasat'],
+  src:'https://www.britannica.com/biography/Gladys-West', srcNm:'Britannica',
+  body:['Contratada em 1956 pelo Naval Proving Ground em Dahlgren, foi a segunda mulher negra admitida na base, uma de apenas quatro funcionários negros na época.',
+        'Das décadas de 1960 a 1980, programou computadores como o IBM 7030 Stretch para refinar modelos matemáticos da forma da Terra a partir de dados de satélite. Esse modelo geodésico é um dos alicerces do que se tornou o GPS. Em 1978 assumiu a gerência do projeto Seasat, primeiro satélite dedicado a sensoriamento remoto dos oceanos.',
+        'Aposentou-se em 1998 e só foi formalmente reconhecida em 2018, quando entrou no Hall da Fama de Pioneiros do Espaço e Míssil da Força Aérea. Perguntada se usava GPS, respondeu que preferia mapas. Morreu em 17 de janeiro de 2026, aos 95 anos.']},
+
+{ era:'nasa', yr:'1960', nm:'Melba Roy Mouton', role:'Chefe de programação · satélites Echo',
+  tpl:'updo', hair:'blk', skin:'d', shirt:'#2f7d8a',
+  tags:['echo','rastreamento','goddard'],
+  src:'https://www.nasa.gov/image-article/melba-roy/', srcNm:'NASA',
+  body:['Liderou no início dos anos 1960 o grupo de matemáticas que calculava e verificava as órbitas dos satélites Echo 1 e 2, os primeiros satélites de comunicação passiva, que refletiam sinais de rádio de volta para a Terra.',
+        'O trabalho envolvia produzir as tabelas de posicionamento que permitiam a observadores no solo localizar os satélites no céu. Errar significava perder a janela de contato.',
+        'Chegou ao cargo de supervisora-chefe de programação e matemática no Goddard Space Flight Center, posição de comando técnico raríssima para uma mulher negra naquele contexto.']},
+
+{ era:'nasa', yr:'1962', nm:'Katherine Johnson', role:'Matemática da NASA · trajetórias orbitais',
+  tpl:'updo', hair:'blk', skin:'d', shirt:'#c9a227',
+  tags:['friendship 7','apollo','trajetória'],
+  src:'https://www.nasa.gov/people/katherine-johnson-biography/', srcNm:'NASA',
+  body:['Trabalhou na agência quando "computador" ainda era um cargo ocupado por mulheres, e no caso dela por mulheres negras, em uma sala separada das demais.',
+        'Calculou à mão a trajetória do voo suborbital de Alan Shepard e a janela de lançamento do Friendship 7. John Glenn se recusou a embarcar, em 1962, até que ela conferisse pessoalmente os números que o computador eletrônico havia produzido. Ela conferiu. O voo deu certo.',
+        'Também contribuiu para os cálculos de encontro orbital do programa Apollo. Recebeu a Medalha Presidencial da Liberdade em 2015 e teve uma instalação de pesquisa da NASA batizada com seu nome em 2016. Morreu em 2020, aos 101 anos.']},
+
+{ era:'nasa', yr:'1958', nm:'Mary Jackson', role:'Primeira engenheira negra da NASA',
+  tpl:'updo', hair:'blk', skin:'d', shirt:'#b5542e',
+  tags:['túnel de vento','engenharia','equidade'],
+  src:'https://www.nasa.gov/people/mary-w-jackson-biography/', srcNm:'NASA',
+  body:['Para se tornar engenheira, precisou de autorização judicial em Hampton, Virgínia, porque as disciplinas exigidas eram oferecidas em escola segregada onde ela não podia entrar. Conseguiu a autorização, estudou e virou engenheira em 1958.',
+        'Trabalhou analisando forças sobre aeronaves em túneis de vento supersônicos e publicou artigos técnicos sobre camada limite.',
+        'Depois de duas décadas na área técnica, aceitou uma posição de menor prestígio como gerente de programas de igualdade de oportunidades da agência. Trocou a própria progressão por abrir a porta para outras. A sede da NASA em Washington leva o nome dela desde 2021.']},
+
+{ era:'nasa', yr:'1969', nm:'Margaret Hamilton', role:'MIT · software de voo da Apollo',
+  tpl:'long', hair:'brn', skin:'l', shirt:'#c95f2e',
+  tags:['apollo 11','engenharia de software','prioridade'],
+  src:'https://www.nasa.gov/history/margaret-hamilton-apollo-software-engineer/', srcNm:'NASA',
+  body:['Liderou a divisão de engenharia de software do MIT Instrumentation Laboratory que escreveu o código de bordo da Apollo. Cunhou a própria expressão "engenharia de software" para forçar a área a ser tratada com a mesma seriedade que hardware.',
+        'Insistiu, contra resistência interna, em construir tratamento de erro e escalonamento por prioridade no sistema. Durante a descida da Apollo 11, o computador de bordo emitiu alarmes 1202 e 1201 por sobrecarga. O software descartou tarefas de baixa prioridade e manteve a navegação funcionando. Armstrong pousou.',
+        'Recebeu a Medalha Presidencial da Liberdade em 2016. Uma foto conhecida mostra ela ao lado da pilha impressa do código da Apollo, mais alta que ela.']},
+
+{ era:'nasa', yr:'1972', nm:'Karen Spärck Jones', role:'Cambridge · recuperação de informação',
+  tpl:'short', hair:'gry', skin:'l', shirt:'#4a5d8a',
+  tags:['idf','tf-idf','pln'],
+  src:'https://www.cl.cam.ac.uk/misc/obituaries/sparckjones/', srcNm:'University of Cambridge',
+  body:['Publicou em 1972 o conceito de frequência inversa de documento, o IDF: a ideia de que palavras raras em uma coleção carregam mais informação sobre um documento do que palavras comuns.',
+        'Esse princípio é a base do TF-IDF, que sustentou motores de busca por décadas e permanece como baseline em processamento de linguagem natural até hoje.',
+        'Trabalhou em Cambridge dos anos 1970 aos 2000 e insistia publicamente que mais mulheres deveriam entrar em computação. A British Computer Society criou um prêmio com o nome dela depois de sua morte, em 2007.']},
+
+{ era:'nasa', yr:'1978', nm:'Yvonne Brill', role:'Engenheira aeroespacial · propulsão de satélites',
+  tpl:'short', hair:'brn', skin:'l', shirt:'#8a6f2e',
+  tags:['propulsão','órbita','patente'],
+  src:'https://www.invent.org/inductees/yvonne-c-brill', srcNm:'National Inventors Hall of Fame',
+  body:['Inventou o sistema de propulsão elétrica por hidrazina que resolve o problema de manter satélites estáveis em órbita geoestacionária gastando menos combustível. O design se tornou padrão da indústria de satélites.',
+        'Trabalhou em regime de meio período durante anos para conciliar carreira e a criação de três filhos, algo incomum e mal visto na engenharia aeroespacial da época.',
+        'Recebeu a Medalha Nacional de Tecnologia e Inovação dos Estados Unidos em 2011. Quando morreu, em 2013, o obituário do New York Times abriu falando do estrogonofe que ela cozinhava antes de mencionar a invenção. A reação pública forçou o jornal a reescrever o texto.']},
+
+/* ═══ ERA DIGITAL ═══ */
+{ era:'digital', yr:'1980', nm:'Adele Goldberg', role:'Xerox PARC · Smalltalk e interface gráfica',
+  tpl:'long', hair:'brn', skin:'l', shirt:'#5d8a2e',
+  tags:['smalltalk','gui','objetos'],
+  src:'https://computerhistory.org/profile/adele-goldberg/', srcNm:'Computer History Museum',
+  body:['Co-desenvolveu no Xerox PARC a linguagem Smalltalk, que consolidou o paradigma de orientação a objetos e influenciou diretamente Java, Ruby, Python e praticamente tudo que veio depois.',
+        'O ambiente do Smalltalk também trazia janelas sobrepostas, ícones e uso de mouse. Em 1979, executivos da Apple visitaram o PARC e viram essa demonstração. Goldberg foi contra mostrar, argumentando que estavam entregando anos de pesquisa de graça. Perdeu a discussão internamente.',
+        'O Macintosh de 1984 e o Windows de 1985 descendem daquela tarde. Ela presidiu a ACM SIGPLAN e depois fundou empresas próprias de software educacional.']},
+
+{ era:'digital', yr:'1985', nm:'Radia Perlman', role:'Engenheira de redes · Spanning Tree Protocol',
+  tpl:'long', hair:'brn', skin:'l', shirt:'#2e8a6f',
+  tags:['stp','roteamento','ethernet'],
+  src:'https://www.internethalloffame.org/inductee/radia-perlman/', srcNm:'Internet Hall of Fame',
+  body:['Criou em 1985, na Digital Equipment Corporation, o Spanning Tree Protocol: um algoritmo que resolve como pacotes atravessam redes com caminhos redundantes sem entrar em loop infinito. Sem ele, uma rede em anel se afoga no próprio tráfego.',
+        'Escreveu o algoritmo em cerca de uma semana e o descreveu também em forma de poema, que virou parte do folclore técnico. Contribuiu ainda para o protocolo de roteamento IS-IS e acumula mais de cem patentes.',
+        'É frequentemente chamada de mãe da internet, apelido que ela rejeita publicamente, argumentando que nenhuma pessoa sozinha inventou a internet. Entrou no Internet Hall of Fame em 2014 e no National Inventors Hall of Fame.']},
+
+{ era:'digital', yr:'1994', nm:'Anita Borg', role:'Fundadora do Grace Hopper Celebration',
+  tpl:'short', hair:'brn', skin:'l', shirt:'#8a2e6f',
+  tags:['systers','grace hopper','comunidade'],
+  src:'https://anitab.org/about-us/about-anita-borg/', srcNm:'AnitaB.org',
+  body:['Cientista de sistemas operacionais na Digital Equipment Corporation, criou em 1987 a Systers, primeira lista de e-mail para mulheres em computação, depois de uma conferência em que percebeu quantas estavam isoladas.',
+        'Fundou o Institute for Women and Technology, hoje AnitaB.org, e em 1994 co-criou com Telle Whitney o Grace Hopper Celebration, que se tornou a maior conferência de mulheres em tecnologia do mundo.',
+        'Argumentava que o problema não era falta de interesse das mulheres, mas a estrutura da própria indústria. Morreu em 2003, aos 54 anos.']},
+
+{ era:'digital', yr:'2005', nm:'Limor Fried', role:'Fundadora da Adafruit · hardware aberto',
+  tpl:'long', hair:'blk', skin:'l', shirt:'#2e6f8a',
+  tags:['open hardware','maker','adafruit'],
+  src:'https://www.adafruit.com/about', srcNm:'Adafruit',
+  body:['Fundou a Adafruit Industries sozinha em 2005, montando e vendendo kits de eletrônica ainda no MIT e depois de um apartamento em Nova York. Nunca captou investimento externo.',
+        'A empresa cresceu para se tornar um dos maiores fornecedores mundiais de hardware educacional aberto, com centenas de funcionários e produção nos Estados Unidos.',
+        'Foi a primeira engenheira a estampar a capa da revista WIRED, em 2011. Defende que projetos de hardware sejam publicados abertamente, do mesmo jeito que código, e publica os esquemáticos de tudo que a Adafruit vende.']},
+
+/* ═══ ERA DA IA ═══ */
+{ era:'modern', yr:'2009', nm:'Fei-Fei Li', role:'Stanford · criadora do ImageNet',
+  tpl:'long', hair:'blk', skin:'m', shirt:'#c9a227',
+  tags:['imagenet','visão computacional','hai'],
+  src:'https://profiles.stanford.edu/fei-fei-li', srcNm:'Stanford University',
+  body:['Construiu o ImageNet entre 2006 e 2009: mais de 14 milhões de imagens classificadas manualmente em milhares de categorias, num momento em que a comunidade acreditava que o gargalo da visão computacional era o algoritmo, não os dados.',
+        'Ela apostou no contrário. Em 2012, no desafio ImageNet, a rede neural AlexNet reduziu drasticamente o erro de classificação e provou que aprendizado profundo funcionava em escala. O boom de IA que veio depois parte desse ponto.',
+        'Co-dirige o Human-Centered AI Institute em Stanford e defende que sistemas de IA sejam avaliados pelo impacto em pessoas, não apenas por métricas de benchmark.']},
+
+{ era:'modern', yr:'2018', nm:'Timnit Gebru', role:'Fundadora do DAIR · ética em IA',
+  tpl:'afro', hair:'blk', skin:'d', shirt:'#8a3a2e',
+  tags:['viés algorítmico','dair','gender shades'],
+  src:'https://www.dair-institute.org/', srcNm:'DAIR Institute',
+  body:['Co-autora do estudo Gender Shades, publicado em 2018, que demonstrou empiricamente que sistemas comerciais de reconhecimento facial erravam muito mais em mulheres de pele escura do que em homens de pele clara. O trabalho levou a correções em produtos da IBM e da Microsoft.',
+        'Era co-líder do time de ética em IA do Google. Em dezembro de 2020 saiu da empresa em circunstâncias disputadas, depois de co-assinar um artigo apontando riscos de modelos de linguagem de grande escala, incluindo custo ambiental e viés embutido nos dados de treino. O episódio abriu um debate público sobre independência de pesquisa dentro de big tech.',
+        'Fundou em 2021 o DAIR, instituto de pesquisa em IA independente de financiamento corporativo, com foco em comunidades afetadas pela tecnologia.']},
+
+{ era:'modern', yr:'2018', nm:'Joy Buolamwini', role:'Algorithmic Justice League · auditoria de IA',
+  tpl:'afro', hair:'blk', skin:'dd', shirt:'#6f2e8a',
+  tags:['gender shades','auditoria','ajl'],
+  src:'https://www.ajl.org/about', srcNm:'Algorithmic Justice League',
+  body:['Descobriu durante o mestrado no MIT que softwares de detecção facial não reconheciam seu rosto até que ela vestisse uma máscara branca. Transformou o incidente em pesquisa.',
+        'Autora principal do Gender Shades, com Timnit Gebru, que auditou sistemas comerciais e quantificou a disparidade de erro por tom de pele e gênero. O método de auditoria adversarial que ela ajudou a estabelecer virou prática padrão para avaliar sistemas comerciais de IA.',
+        'Fundou a Algorithmic Justice League e testemunhou no Congresso americano. Sua atuação contribuiu para moratórias municipais no uso de reconhecimento facial por polícia em cidades dos Estados Unidos.']},
+
+{ era:'modern', yr:'2019', nm:'Katie Bouman', role:'Caltech · imagem do buraco negro',
+  tpl:'long', hair:'brn', skin:'l', shirt:'#2e4a8a',
+  tags:['chirp','m87','event horizon'],
+  src:'https://www.caltech.edu/about/news/katie-bouman-black-hole-image', srcNm:'Caltech',
+  body:['Liderou, durante o doutorado no MIT, o desenvolvimento do algoritmo CHIRP, que reconstrói uma imagem coerente a partir de dados esparsos e ruidosos captados por radiotelescópios espalhados pelo planeta.',
+        'Sem esse tipo de reconstrução computacional, os dados do Event Horizon Telescope seriam apenas interferometria bruta. Em abril de 2019, a primeira imagem de um buraco negro, o M87, foi divulgada e virou capa no mundo inteiro.',
+        'A foto dela reagindo ao ver a imagem se formar circulou quase tanto quanto o resultado científico. Hoje é professora no Caltech, trabalhando em imageamento computacional.']},
+
+/* ═══ AGORA ═══ */
+{ era:'now', yr:'2025', nm:'Cordelia Schmid', role:'Inria · ACM Athena Lecturer 2025-2026',
+  tpl:'short', hair:'brn', skin:'l', shirt:'#c94a6f',
+  tags:['visão computacional','athena','inria'],
+  src:'https://awards.acm.org/about/2025-athena', srcNm:'ACM Awards',
+  body:['Nomeada em abril de 2025 como ACM Athena Lecturer do ciclo 2025-2026, prêmio anual que reconhece uma cientista da computação por contribuições fundamentais à área.',
+        'Diretora de pesquisa no Inria, instituto nacional francês de pesquisa em ciência digital, e diretora no Google. Foi reconhecida por trabalho em recuperação de imagens, reconhecimento de objetos e compreensão de vídeo, iniciado nos anos 1990 com descritores semi-locais de imagem.',
+        'É a única pessoa a receber três vezes o prêmio Longuet-Higgins, dado a artigos de visão computacional cujo impacto se sustentou ao longo de uma década. O Athena inclui honorário custeado pela Two Sigma.']},
+
+{ era:'now', yr:'2025', nm:'Shin Hwei Tan', role:'Concordia · ACM-W Rising Star 2025',
+  tpl:'long', hair:'blk', skin:'m', shirt:'#2e8a8a',
+  tags:['reparo de código','rising star','open source'],
+  src:'https://women.acm.org/rising-star-award/', srcNm:'ACM-W',
+  body:['Recebeu em 2025 o ACM-W Rising Star Award, que reconhece pesquisadoras em início de carreira cujo trabalho já teve impacto mensurável na computação.',
+        'Professora associada na Universidade Concordia, em Montreal. Pesquisa reparo automático de programas, a área que tenta fazer com que sistemas detectem e corrijam os próprios defeitos sem intervenção humana.',
+        'Boa parte do trabalho dela envolve testar essas técnicas em projetos reais de código aberto, e não apenas em benchmarks acadêmicos. É uma escolha metodológica menos confortável e mais honesta.']},
+
+{ era:'now', yr:'2026', nm:'Cynthia Dwork', role:'Harvard · Prêmio Japão 2026',
+  tpl:'short', hair:'gry', skin:'l', shirt:'#8a2e4a',
+  tags:['privacidade diferencial','prêmio japão','proof of work'],
+  src:'https://www.japanprize.jp/en/prize_prof_2026_dwork.html', srcNm:'Japan Prize Foundation',
+  body:['Recebeu o Prêmio Japão de 2026 em Eletrônica, Informação e Comunicação, anunciado em janeiro daquele ano, por contribuições à construção de uma sociedade digital ética. Em 2025 havia recebido a Medalha Nacional de Ciências dos Estados Unidos.',
+        'Formalizou em meados dos anos 2000, com colaboradores, o conceito de privacidade diferencial: uma definição matemática de quanto uma base de dados pode revelar sobre um indivíduo, permitindo extrair estatísticas úteis com garantia formal de anonimato. A técnica sustenta o sistema de proteção do censo americano de 2020 e é usada por Apple e Google.',
+        'Também é uma das autoras fundadoras da literatura sobre justiça algorítmica, ajudando a estabelecer que "justo" precisa ser definido formalmente antes de ser exigido de um sistema. E, em 1993, propôs o proof of work, mecanismo criado contra spam que décadas depois viraria a base do Bitcoin.']},
+
+{ era:'now', yr:'2026', nm:'Monika Henzinger', role:'ISTA Áustria · ACM Athena Lecturer 2026-2027',
+  tpl:'long', hair:'brn', skin:'l', shirt:'#4a2e8a',
+  tags:['grafos dinâmicos','algoritmos','athena'],
+  src:'https://awards.acm.org/athena', srcNm:'ACM Awards',
+  body:['Anunciada como ACM Athena Lecturer do ciclo 2026-2027, reconhecida por contribuições a algoritmos de grafos dinâmicos e algoritmos para a web, além de trabalho consistente de mentoria nessas comunidades.',
+        'Pesquisadora do Institute of Science and Technology Austria. Algoritmos de grafos dinâmicos lidam com estruturas que mudam continuamente, situação que descreve redes sociais, roteamento e praticamente qualquer sistema vivo em produção.',
+        'Foi diretora de pesquisa no Google no início dos anos 2000, período em que a busca ainda estava definindo como indexar a web em escala.']},
+
+{ era:'now', yr:'2026', nm:'Katerina Spranger', role:'Oxford Heartbeat · Prémio Europeu 2026',
+  tpl:'long', hair:'brn', skin:'l', shirt:'#c9642e',
+  tags:['healthtech','ia médica','fundadora'],
+  src:'https://eic.ec.europa.eu/eu-prizes/european-prize-women-innovators_en', srcNm:'Comissão Europeia',
+  body:['Venceu em 2026 a categoria principal do Prémio Europeu para Mulheres Inovadoras, concedido pela Comissão Europeia na cúpula do Conselho Europeu de Inovação em Bruxelas, com prêmio de cem mil euros.',
+        'Fundadora e CEO da Oxford Heartbeat, empresa que usa inteligência artificial para planejar cirurgias de aneurisma cerebral, simulando como o stent vai se comportar dentro do vaso antes de o cirurgião entrar na sala.',
+        'A edição de 2026 concentrou vencedoras em saúde, sustentabilidade, tecnologia espacial e rastreabilidade digital, recorte que indica onde a inovação liderada por mulheres está se concentrando na Europa.']},
+
+{ era:'now', yr:'2026', nm:'Jennifer Tour Chayes', role:'UC Berkeley · reitora de computação',
+  tpl:'long', hair:'brn', skin:'l', shirt:'#8a4a2e',
+  tags:['berkeley','redes','forbes 50'],
+  src:'https://cdss.berkeley.edu/about/leadership', srcNm:'UC Berkeley CDSS',
+  body:['Reitora do College of Computing, Data Science and Society da UC Berkeley, listada pela Forbes em 2026 entre as cinquenta mulheres acima de cinquenta anos mais relevantes em ciência e tecnologia.',
+        'Antes da academia, passou anos na Microsoft Research, onde fundou e liderou grupos de teoria e de ciência social computacional. Pesquisa teoria de grafos aleatórios, redes e aprendizado de máquina.',
+        'Uma reitoria de computação em Berkeley é posição de definição de agenda: decide o que centenas de pesquisadores vão priorizar nos próximos anos.']},
+
+{ era:'now', yr:'2026', nm:'O placar atual', role:'Turing Award · 3 mulheres em 70+ laureados',
+  tpl:'bun', hair:'wht', skin:'l', shirt:'#5c5878',
+  tags:['dado duro','turing','desigualdade'],
+  src:'https://amturing.acm.org/byyear.cfm', srcNm:'ACM A.M. Turing Award',
+  body:['Em 18 de março de 2026, a ACM anunciou que o Turing Award de 2025 foi para Charles Bennett e Gilles Brassard, pelos fundamentos da ciência da informação quântica. Prêmio merecido, e mais um ano sem mudança no placar de gênero.',
+        'Desde 1966, o Turing Award foi dado a mais de setenta pessoas. Três eram mulheres: Frances Allen em 2006, por otimização de compiladores; Barbara Liskov em 2008, por linguagens de programação e projeto de sistemas; e Shafi Goldwasser em 2012, por criptografia. Nenhuma desde então.',
+        'Vale colocar do lado o que também é verdade em 2026: Cynthia Dwork levou o Prêmio Japão, o Athena Lecturer premiou duas cientistas em ciclos consecutivos e a Comissão Europeia distribuiu seu prêmio de inovação para fundadoras. O progresso existe, é lento, e essas duas coisas não se anulam.']},
+];
+
+const erasEl = document.getElementById('eras');
+const infoEl = document.getElementById('eraInfo');
+const gridEl = document.getElementById('grid');
+const detEl  = document.getElementById('detail');
+
+document.getElementById('sTotal').textContent = P.length;
+
+ERAS.forEach(e=>{
+  const d = document.createElement('div');
+  d.className = 'era';
+  d.style.setProperty('--eC', e.color);
+  d.setAttribute('role','button');
+  d.setAttribute('tabindex','0');
+  d.innerHTML = eraIcon(e.icon, e.color) +
+    '<div class="lbl">'+e.label+'</div><div class="yr">'+e.years+'</div>';
+  const go = ()=> select(e.id);
+  d.addEventListener('click', go);
+  d.addEventListener('keydown', ev=>{ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); go(); }});
+  erasEl.appendChild(d);
+});
+
+function select(id){
+  const era = ERAS.find(e=>e.id===id);
+  detEl.className=''; detEl.innerHTML='';
+  [...erasEl.children].forEach((c,i)=> c.classList.toggle('on', ERAS[i].id===id));
+  document.documentElement.style.setProperty('--eraC', era.color);
+  infoEl.className='show';
+  infoEl.innerHTML = '<h2>'+era.label+' · '+era.years+'</h2><p>'+era.ctx+'</p>';
+
+  gridEl.innerHTML='';
+  P.filter(p=>p.era===id)
+   .sort((a,b)=> parseInt(a.yr) - parseInt(b.yr))
+   .forEach((p,i)=>{
+    const c = document.createElement('div');
+    c.className='card';
+    c.setAttribute('role','button');
+    c.setAttribute('tabindex','0');
+    c.innerHTML = portrait(p,64) + '<div class="nm">'+p.nm+'</div><div class="yr">'+p.yr+'</div>';
+    const go = ()=> openCard(p);
+    c.addEventListener('click', go);
+    c.addEventListener('keydown', ev=>{ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); go(); }});
+    gridEl.appendChild(c);
+    setTimeout(()=>c.classList.add('in'), i*55);
+  });
+}
+
+function openCard(p){
+  detEl.className='show';
+  detEl.innerHTML =
+    '<button class="closeBtn" aria-label="fechar">X</button>'+
+    '<div class="dhead">'+portrait(p,86)+
+    '<div class="dmeta"><span class="dyr">'+p.yr+'</span><h3>'+p.nm+'</h3>'+
+    '<p class="role">'+p.role+'</p></div></div>'+
+    '<div class="dbody">'+p.body.map(t=>'<p>'+t+'</p>').join('')+
+    '<div class="tags">'+p.tags.map(t=>'<span class="tag">'+t+'</span>').join('')+'</div>'+
+    '<a class="srcLink" href="'+p.src+'" target="_blank" rel="noopener">Fonte: '+p.srcNm+' ↗</a>'+
+    '</div>';
+  detEl.querySelector('.closeBtn').onclick = ()=>{ detEl.className=''; detEl.innerHTML=''; };
+  detEl.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+(function(){
+  const cv=document.getElementById('stars'), cx=cv.getContext('2d');
+  let W,H,stars=[];
+  const PAL=['#ffffff','#c77dff','#4cc9f0','#f7c343','#ff7b9c','#5ddc9c'];
+  function init(){
+    W=cv.width=Math.ceil(window.innerWidth/3);
+    H=cv.height=Math.ceil(window.innerHeight/3);
+    cv.style.width=window.innerWidth+'px'; cv.style.height=window.innerHeight+'px';
+    stars=[];
+    const n=Math.round(W*H/900);
+    for(let i=0;i<n;i++) stars.push({
+      x:Math.random()*W, y:Math.random()*H,
+      s:Math.random()<.82?1:2,
+      c:PAL[Math.random()<.62?0:1+Math.floor(Math.random()*5)],
+      ph:Math.random()*6.283, sp:.4+Math.random()*1.6, dy:.004+Math.random()*.018 });
+  }
+  init(); window.addEventListener('resize', init);
+  let t=0;
+  (function loop(){
+    t++; cx.clearRect(0,0,W,H);
+    stars.forEach(s=>{
+      s.y+=s.dy; if(s.y>H) s.y=0;
+      const a=.3+Math.sin(t*.02*s.sp+s.ph)*.5;
+      if(a<=0) return;
+      cx.globalAlpha=a; cx.fillStyle=s.c;
+      cx.fillRect(Math.round(s.x),Math.round(s.y),s.s,s.s);
+    });
+    cx.globalAlpha=1;
+    requestAnimationFrame(loop);
+  })();
+})();
+
+select('pioneer');
+</script>
+</body>
+</html>
