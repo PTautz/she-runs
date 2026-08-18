@@ -37,6 +37,7 @@ html,body{background:var(--bg);height:100%;overflow:hidden;
 #endBar input:focus{outline:none;border-color:var(--violet)}
 #endBar button{font-family:inherit;font-size:.55rem;background:var(--panel);
   border:2px solid var(--violet);color:var(--text);padding:12px 16px;cursor:pointer}
+#endBar button.secondary{border-color:var(--line)}
 #endBar button:disabled{opacity:.4}
 #endStatus{width:100%;text-align:center;font-size:.5rem;color:var(--dim);min-height:1.2em}
 #createBar{display:none;gap:8px;width:min(1080px,96vw);justify-content:center;flex-wrap:wrap;background:var(--panel);border:2px solid var(--good);padding:10px}
@@ -66,6 +67,7 @@ html,body{background:var(--bg);height:100%;overflow:hidden;
   <div id="endBar">
     <input id="pName" maxlength="16" placeholder="SEU NOME">
     <button id="saveBtn">SALVAR SCORE</button>
+    <button id="lbBtn" class="secondary">VER RANKING</button>
     <div id="endStatus"></div>
   </div>
   <div id="createBar">
@@ -477,7 +479,7 @@ function drawBackground(scrollSpeed, t){
 }
 
 /* ══════════ ESTADO ══════════ */
-let state='SELECT';   // SELECT RUN BOSSINTRO BOSSMENU BOSSTEXT BOSSDODGE VICTORY GAMEOVER
+let state='SELECT';   // SELECT CREATE RUN BOSSINTRO BOSSMENU BOSSTEXT BOSSDODGE VICTORY GAMEOVER LEADERBOARD
 let t=0, score=0, pressure=0, progress=0;
 let combo=0, comboMult=1, shake=0, flashRed=0;
 let selIdx=0, hero=CHARS[0];
@@ -521,6 +523,7 @@ addEventListener('keydown',e=>{
     if(e.code==='ArrowLeft'){ selIdx=(selIdx+tot-1)%tot; SFX.select(); }
     if(e.code==='ArrowRight'){ selIdx=(selIdx+1)%tot; SFX.select(); }
     if(e.code==='Space'||e.code==='Enter'){ if(selIdx>=CHARS.length) openCreate(); else startRun(); }
+    if(e.code==='KeyL') openLeaderboard();
     return;
   }
   if(state==='CREATE'){
@@ -533,6 +536,11 @@ addEventListener('keydown',e=>{
   }
   if(state==='VICTORY'||state==='GAMEOVER'){
     if(e.code==='Space'||e.code==='Enter'){ state='SELECT'; hideEndBar(); }
+    if(e.code==='KeyL') openLeaderboard();
+    return;
+  }
+  if(state==='LEADERBOARD'){
+    if(e.code==='Space'||e.code==='Enter'||e.code==='Escape') state=lbFrom;
     return;
   }
   if(state==='RUN'){
@@ -1091,6 +1099,49 @@ document.getElementById('saveBtn').addEventListener('click', async ()=>{
   }
 });
 
+let lbData=null, lbStatus='', lbFrom='SELECT';
+async function openLeaderboard(){
+  lbFrom = state;
+  state='LEADERBOARD'; lbData=null; lbStatus='carregando...';
+  try{
+    const ctrl=new AbortController(); const timer=setTimeout(()=>ctrl.abort(),4000);
+    const res=await fetch(WORKER_URL+'/scores/top10',{signal:ctrl.signal});
+    clearTimeout(timer);
+    const data=await res.json();
+    lbData=data.scores||[];
+    lbStatus=lbData.length?'':'NINGUÉM PONTUOU AINDA — SEJA A PRIMEIRA!';
+  }catch(e){
+    lbData=[]; lbStatus='RANKING INDISPONÍVEL NO MOMENTO — TENTA DE NOVO DEPOIS.';
+  }
+}
+document.getElementById('lbBtn').addEventListener('click', openLeaderboard);
+function drawLeaderboard(){
+  drawBackground(.5,t);
+  centerText(['HALL DA FAMA'],56,C.gold,14);
+  if(lbData===null){
+    centerText(['carregando...'],150,C.dim,8);
+  } else if(lbStatus){
+    centerText([lbStatus],150,C.dim,7);
+  } else {
+    const bx=W/2-220, by=90, bw=440;
+    cx.font='6px "Press Start 2P"'; cx.fillStyle=C.dim;
+    cx.fillText('#',bx,by); cx.fillText('NOME',bx+30,by); cx.fillText('PERSONAGEM',bx+220,by); cx.fillText('SCORE',bx+bw-50,by);
+    lbData.slice(0,10).forEach((s,i)=>{
+      const y=by+22+i*20;
+      cx.font='7px "Press Start 2P"'; cx.fillStyle=i===0?C.gold:C.text;
+      cx.fillText(String(i+1),bx,y);
+      cx.fillText((s.name||'').slice(0,14),bx+30,y);
+      cx.font='6px "Press Start 2P"'; cx.fillStyle=C.dim;
+      cx.fillText((s.character||'').slice(0,12),bx+220,y);
+      cx.font='7px "Press Start 2P"'; cx.fillStyle=C.gold;
+      const sc=String(s.score); cx.fillText(sc,bx+bw-cx.measureText(sc).width,y);
+    });
+  }
+  cx.globalAlpha=.5+Math.sin(t*.15)*.5;
+  centerText(['ESPAÇO — VOLTAR'],H-20,C.dim,7);
+  cx.globalAlpha=1;
+}
+
 /* ══════════ LOOP ══════════ */
 function frame(){
   t++;
@@ -1101,6 +1152,7 @@ function frame(){
 
   if(state==='SELECT') drawSelect();
   else if(state==='CREATE') drawCreate();
+  else if(state==='LEADERBOARD') drawLeaderboard();
 
   else if(state==='RUN'){
     drawBackground(RUN_CFG.speedBase+(RUN_CFG.speedMax-RUN_CFG.speedBase)*Math.min(1,progress/100),t);
