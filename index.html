@@ -25,9 +25,22 @@ body{padding:0 0 3rem}
 .wrap{position:relative;z-index:2;max-width:1000px;margin:0 auto;padding:0 18px}
 
 header{text-align:center;padding:3.5rem 0 2.2rem}
+.titleWrap{position:relative;display:inline-block}
 h1{font-family:var(--pixel);font-size:clamp(.9rem,3.1vw,1.55rem);line-height:2.05;margin:0 0 16px;
   color:#fff;letter-spacing:.03em;text-shadow:3px 3px 0 #6b3fd4,6px 6px 0 rgba(107,63,212,.25);
-  animation:neonPulse 7s ease-in-out infinite}
+  animation:neonPulse 7s ease-in-out infinite, titleBob 6s ease-in-out infinite}
+/* rastro: duas cópias do título atrás, levemente atrasadas e desfocadas —
+   como elas seguem a mesma oscilação com uma defasagem, parecem uma esteira colorida */
+.titleEcho{position:absolute;inset:0 0 auto 0;margin:0 0 16px;color:transparent;
+  pointer-events:none;user-select:none;-webkit-user-select:none;z-index:-1}
+.titleEcho:nth-of-type(1){text-shadow:0 0 16px rgba(76,201,240,.55);filter:blur(3px);
+  animation:titleBob 6s ease-in-out infinite -0.35s}
+.titleEcho:nth-of-type(2){text-shadow:0 0 20px rgba(255,123,156,.45);filter:blur(5px);
+  animation:titleBob 6s ease-in-out infinite -0.7s}
+@keyframes titleBob{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-7px)}
+}
 @keyframes neonPulse{
   0%,100%{text-shadow:3px 3px 0 #6b3fd4,6px 6px 0 rgba(107,63,212,.25),0 0 14px rgba(199,125,255,.55),0 0 30px rgba(199,125,255,.2)}
   33%{text-shadow:3px 3px 0 #6b3fd4,6px 6px 0 rgba(107,63,212,.25),0 0 14px rgba(76,201,240,.55),0 0 30px rgba(76,201,240,.2)}
@@ -99,7 +112,11 @@ footer a{color:#8f8ab5}
 
 <div class="wrap">
 <header>
-  <h1>Elas escreveram<br>o código</h1>
+  <div class="titleWrap">
+    <h1 class="titleEcho" aria-hidden="true">Elas escreveram<br>o código</h1>
+    <h1 class="titleEcho" aria-hidden="true">Elas escreveram<br>o código</h1>
+    <h1>Elas escreveram<br>o código</h1>
+  </div>
   <p class="tagline">De Ada Lovelace, em 1843, às premiadas de 2026.<br>Escolha uma época. Clique em cada retrato.</p>
   <div class="count-strip">
     <div class="stat"><b id="sTotal">0</b><span>verbetes</span></div>
