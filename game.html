@@ -593,7 +593,7 @@ const btn=(id,down,up)=>{
   el.addEventListener('touchstart',e=>{e.preventDefault();down();},{passive:false});
   if(up) el.addEventListener('touchend',e=>{e.preventDefault();up();},{passive:false});
 };
-btn('btnJump',()=>{
+function primaryAction(){
   if(state==='SELECT'){ if(selIdx>=CHARS.length) openCreate(); else startRun(); }
   else if(state==='VICTORY'||state==='GAMEOVER'){ state='SELECT'; hideEndBar(); }
   else if(state==='RUN') player.buffer=BUFFER;
@@ -601,7 +601,8 @@ btn('btnJump',()=>{
   else if(state==='BOSSMENU') chooseBossAction();
   else if(state==='CREATE') cycleDraft(1);
   else if(state==='LEADERBOARD') state=lbFrom;
-});
+}
+btn('btnJump', primaryAction);
 document.getElementById('createConfirmBtn').addEventListener('click', confirmCreate);
 document.getElementById('createBackBtn').addEventListener('click', ()=>{ state='SELECT'; hideCreateBar(); });
 btn('btnDuck',()=>{
@@ -618,7 +619,7 @@ btn('btnSkill',()=>{
 /* toque no jogo: arrastar move a personagem (corrida) ou o cursor (desvio do chefe) */
 let touchDrag=null;
 cv.addEventListener('touchstart',e=>{
-  if(state!=='BOSSDODGE' && state!=='RUN') return;
+  if(state!=='BOSSDODGE' && state!=='RUN'){ e.preventDefault(); primaryAction(); return; }
   e.preventDefault();
   const r=cv.getBoundingClientRect();
   touchDrag={x:e.touches[0].clientX-r.left, y:e.touches[0].clientY-r.top};
@@ -1014,7 +1015,7 @@ function textBox(lines, prompt){
   lines.forEach((l,i)=>cx.fillText(l,58,H-bh-2+i*16));
   if(prompt){
     cx.fillStyle=C.gold; cx.globalAlpha=.5+Math.sin(t*.2)*.5;
-    cx.font='6px "Press Start 2P"'; cx.fillText('ESPAÇO ▶',W-140,H-32);
+    cx.font='6px "Press Start 2P"'; cx.fillText('ESPAÇO/TOQUE ▶',W-140,H-32);
     cx.globalAlpha=1;
   }
 }
@@ -1105,7 +1106,7 @@ function drawSelect(){
   centerText(['← →  TROCAR PERSONAGEM'],by+bh+22,C.dim,6);
   centerText(['ESPAÇO pular · ↓ abaixar · ←→ andar · Z especial'],by+bh+42,C.dim,6);
   cx.globalAlpha=.5+Math.sin(t*.15)*.5;
-  centerText([isCreateSlot?'— ESPAÇO PARA CRIAR —':'— ESPAÇO PARA COMEÇAR —'],by+bh+66,isCreateSlot?C.good:C.gold,8);
+  centerText([isCreateSlot?'— TOQUE PRA CRIAR —':'— TOQUE PRA COMEÇAR —'],by+bh+66,isCreateSlot?C.good:C.gold,8);
   cx.globalAlpha=1;
 }
 function wrapText(txt,x,y,maxW,lh){
@@ -1185,7 +1186,7 @@ function drawLeaderboard(){
     });
   }
   cx.globalAlpha=.5+Math.sin(t*.15)*.5;
-  centerText(['ESPAÇO — VOLTAR'],H-20,C.dim,7);
+  centerText(['ESPAÇO/TOQUE — VOLTAR'],H-20,C.dim,7);
   cx.globalAlpha=1;
 }
 
@@ -1232,7 +1233,7 @@ function frame(){
     centerText(['SCORE: '+score],90,C.gold,10);
     drawScoreBreakdown(122);
     cx.globalAlpha=.5+Math.sin(t*.15)*.5;
-    centerText(['ESPAÇO — ESCOLHER OUTRA PERSONAGEM'],H-20,C.dim,6);
+    centerText(['TOQUE — OUTRA PERSONAGEM'],H-20,C.dim,6);
     cx.globalAlpha=1;
   }
   else if(state==='GAMEOVER'){
@@ -1242,7 +1243,7 @@ function frame(){
     centerText(['SCORE: '+score],H/2-18,C.gold,11);
     drawScoreBreakdown(H/2+14);
     cx.globalAlpha=.5+Math.sin(t*.15)*.5;
-    centerText(['ESPAÇO — TENTAR DE NOVO'],H-20,C.text,8);
+    centerText(['ESPAÇO/TOQUE — TENTAR DE NOVO'],H-20,C.text,8);
     cx.globalAlpha=1;
   }
 
