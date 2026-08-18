@@ -308,7 +308,7 @@ const CHARS=[
     id:'ada', name:'ADA LOVELACE', yr:'1843', era:'ERA PIONEER · 1843',
     head:'updo', torso:'dress', hair:'brn', skin:'l',
     color1:'#7b4fd4', color2:'#4a2e8a', accent:'#f7c343', theme:C.violet,
-    skill:{ name:'ALGORITMO', how:'Prevê o próximo obstáculo e o congela por 3s',
+    skill:{ name:'ALGORITMO', how:'Por 3s, atravessa os obstáculos sem se chocar',
             why:'Ela escreveu o primeiro algoritmo publicado — um século antes da máquina existir.',
             type:'freeze' },
     obstacles:[
@@ -418,7 +418,7 @@ const CHARS=[
 const SKIN_KEYS=Object.keys(SKIN), HAIR_KEYS=Object.keys(HAIR), HEAD_KEYS=Object.keys(HEADS), TORSO_KEYS=Object.keys(TORSOS);
 const SKIN_LABELS={l:'CLARA',m:'MÉDIA',d:'ESCURA',dd:'BEM ESCURA'};
 const OUTFIT_COLORS=['#7b4fd4','#2d4a8a','#c9a227','#c95f2e','#2e7d5f','#c9445a','#4a5560','#ff8a4c'];
-const ABILITY_TYPES=[{type:'freeze',label:'CONGELAR'},{type:'shield',label:'ESCUDO'},{type:'orbit',label:'TRAJETÓRIA PERFEITA'},{type:'debug',label:'ELIMINAR'}];
+const ABILITY_TYPES=[{type:'freeze',label:'ATRAVESSAR'},{type:'shield',label:'ESCUDO'},{type:'orbit',label:'TRAJETÓRIA PERFEITA'},{type:'debug',label:'ELIMINAR'}];
 const BOSS_PRESETS=[
   {head:LORD_HEAD,torso:LORD_TORSO,pal:LORD_PAL,label:'CARTOLA'},
   {head:COMM_HEAD,torso:COMM_TORSO,pal:COMM_PAL,label:'COMITÊ'},
@@ -735,7 +735,7 @@ function burst(x,y,c,n){
   for(let i=0;i<n;i++) particles.push({ x,y, vx:(Math.random()-.5)*5, vy:(Math.random()-.5)*5-1, c, sz:2+Math.random()*2, life:20+Math.random()*15 });
 }
 function hitPlayer(){
-  if(player.orbit>0) return;
+  if(player.orbit>0 || player.freeze>0) return;
   if(player.shield){ player.shield=false; SFX.charged(); floatTexts.push({x:player.x-20,y:player.y-70,txt:'ESCUDO!',c:C.good,life:50}); return; }
   SFX.hit();
   player.hp-=18; pressure=Math.min(100,pressure+15);
@@ -764,7 +764,7 @@ function updateRun(){
   if(player.skillActiveTimer>0) player.skillActiveTimer--;
 
   spawnTimer--;
-  if(spawnTimer<=0 && player.freeze<=0){
+  if(spawnTimer<=0){
     spawnObstacle();
     const gLo=RUN_CFG.gapBase[0]-(RUN_CFG.gapBase[0]-RUN_CFG.gapTight[0])*prog01;
     const gHi=RUN_CFG.gapBase[1]-(RUN_CFG.gapBase[1]-RUN_CFG.gapTight[1])*prog01;
@@ -796,7 +796,7 @@ function updateRun(){
 
   const ph=player.duck?HERO_H_DUCK:HERO_H;
   const py=player.y-ph, pw=player.w*.6, px=player.x-pw/2;
-  const spd = player.freeze>0 ? 0 : curSpeed;
+  const spd = curSpeed;
 
   for(let i=obstacles.length-1;i>=0;i--){
     const o=obstacles[i], def=o.def;
@@ -816,7 +816,7 @@ function updateRun(){
         hitPlayer(); obstacles.splice(i,1); continue;
       }
       if(def.deadly){
-        if(player.orbit>0){                       // atravessa com trajetória perfeita
+        if(player.orbit>0 || player.freeze>0){     // trajetória perfeita OU algoritmo: atravessa
           o.scored=true; score+=def.pts; stats.especial+=def.pts; addCharge(1);
           burst(o.x+o.w/2,o.y+o.h/2,hero.theme,8);
           obstacles.splice(i,1); continue;
@@ -972,7 +972,7 @@ function drawHUD(){
   drawChargeBar(12, 56, 150);
   if(player.shield){ cx.fillStyle=C.good; cx.font='6px "Press Start 2P"'; cx.fillText('ESCUDO ATIVO',12,84); }
   if(player.orbit>0){ cx.fillStyle=hero.theme; cx.font='6px "Press Start 2P"'; cx.fillText('TRAJETÓRIA PERFEITA',12,84); }
-  if(player.freeze>0){ cx.fillStyle=hero.theme; cx.font='6px "Press Start 2P"'; cx.fillText('TEMPO CONGELADO',12,84); }
+  if(player.freeze>0){ cx.fillStyle=hero.theme; cx.font='6px "Press Start 2P"'; cx.fillText('ATRAVESSANDO',12,84); }
 }
 const HINT_TXT={jump:'PULE', duck:'ABAIXE', skill:'ESPECIAL [Z]', collect:''};
 function drawObstacles(){
@@ -1020,7 +1020,10 @@ function drawObstacles(){
       cx.beginPath(); cx.arc(o.x+o.w/2,o.y+o.h/2, o.w*.8+Math.sin(t*.15)*3, 0, 6.28); cx.fill();
     }
     const [grid,pal]=SPRITES[def.shape];
+    const ghost = player.freeze>0 && def.deadly;   // ALGORITMO: quase transparente e atravessável
+    if(ghost) cx.globalAlpha=.2;
     drawGrid(grid,pal,o.x,o.y,o.w/grid[0].length);
+    if(ghost) cx.globalAlpha=1;
   });
 }
 function drawParticlesTexts(){
