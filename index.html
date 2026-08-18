@@ -25,10 +25,20 @@ body{padding:0 0 3rem}
 .wrap{position:relative;z-index:2;max-width:1000px;margin:0 auto;padding:0 18px}
 
 header{text-align:center;padding:3.5rem 0 2.2rem}
-h1{font-family:var(--pixel);font-size:clamp(.9rem,3.1vw,1.55rem);line-height:1.95;margin:0 0 16px;
-  color:#fff;text-shadow:3px 3px 0 #6b3fd4,6px 6px 0 rgba(107,63,212,.25)}
+h1{font-family:var(--pixel);font-size:clamp(.9rem,3.1vw,1.55rem);line-height:2.05;margin:0 0 16px;
+  color:#fff;letter-spacing:.03em;text-shadow:3px 3px 0 #6b3fd4,6px 6px 0 rgba(107,63,212,.25);
+  animation:neonPulse 7s ease-in-out infinite}
+@keyframes neonPulse{
+  0%,100%{text-shadow:3px 3px 0 #6b3fd4,6px 6px 0 rgba(107,63,212,.25),0 0 14px rgba(199,125,255,.55),0 0 30px rgba(199,125,255,.2)}
+  33%{text-shadow:3px 3px 0 #6b3fd4,6px 6px 0 rgba(107,63,212,.25),0 0 14px rgba(76,201,240,.55),0 0 30px rgba(76,201,240,.2)}
+  66%{text-shadow:3px 3px 0 #6b3fd4,6px 6px 0 rgba(107,63,212,.25),0 0 14px rgba(255,123,156,.55),0 0 30px rgba(255,123,156,.2)}
+}
 .tagline{font-size:.92rem;color:var(--dim);margin:0;line-height:1.7}
 .count-strip{display:flex;justify-content:center;gap:28px;margin-top:24px;flex-wrap:wrap}
+#playBtn{display:inline-block;margin-top:28px;font-family:var(--pixel);font-size:.62rem;
+  background:var(--panel-hi);border:2px solid var(--eraC,#c77dff);color:#fff;text-decoration:none;
+  padding:14px 22px;transition:transform .12s,box-shadow .12s}
+#playBtn:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--eraC,#c77dff)}
 .stat b{display:block;font-family:var(--pixel);font-size:1.05rem;color:#f7c343;margin-bottom:6px}
 .stat span{font-size:.62rem;color:var(--dim);text-transform:uppercase;letter-spacing:.12em}
 
@@ -96,6 +106,7 @@ footer a{color:#8f8ab5}
     <div class="stat"><b>183</b><span>anos</span></div>
     <div class="stat"><b>3</b><span>turing awards</span></div>
   </div>
+  <a id="playBtn" href="game.html">JOGAR ★</a>
 </header>
 
 <div class="eras" id="eras"></div>
@@ -201,7 +212,7 @@ const P = [
 { era:'pioneer', yr:'1952', nm:'Grace Hopper', role:'Contra-almirante · primeiro compilador',
   tpl:'short', hair:'gry', skin:'l', shirt:'#2d4a8a',
   tags:['compilador','cobol','bug'],
-  src:'https://www.history.navy.mil/content/history/nhhc/research/library/research-guides/grace-hopper.html', srcNm:'U.S. Naval History and Heritage Command',
+  src:'https://www.history.navy.mil/browse-by-topic/people/namesakes/grace-hopper.html', srcNm:'U.S. Naval History and Heritage Command',
   body:['Programou o Harvard Mark I durante a Segunda Guerra e, em 1952, criou o A-0, o primeiro compilador da história, quando parte da comunidade considerava impossível traduzir automaticamente linguagem humana para código de máquina.',
         'Defendia que programar deveria parecer com escrever em inglês. Essa insistência levou ao FLOW-MATIC e depois ao COBOL, linguagem que ainda roda sistemas bancários hoje.',
         'O termo "bug" ficou popular porque a equipe dela registrou no log uma mariposa presa em um relé do Mark II. Serviu na Marinha americana até os 79 anos, aposentando-se como a oficial mais velha em serviço ativo.']},
@@ -210,7 +221,7 @@ const P = [
 { era:'nasa', yr:'1949', nm:'Dorothy Vaughan', role:'Primeira supervisora negra da NACA · Fortran',
   tpl:'updo', hair:'blk', skin:'dd', shirt:'#4a7c59',
   tags:['fortran','west computing','requalificação'],
-  src:'https://www.nasa.gov/people/dorothy-vaughan-biography/', srcNm:'NASA',
+  src:'https://www.nasa.gov/centers-and-facilities/langley/dorothy-j-vaughan/', srcNm:'NASA',
   body:['Assumiu em 1949 a chefia da seção West Computing, formada exclusivamente por matemáticas negras, divisão imposta por lei na Virgínia da época. Foi a primeira mulher negra a supervisionar um grupo na agência.',
         'Quando a NACA anunciou que computadores IBM assumiriam o trabalho manual da equipe, Vaughan aprendeu Fortran por conta própria e ensinou a linguagem para todo o seu grupo. Nenhuma delas ficou obsoleta.',
         'Contribuiu para o Scout Launch Vehicle Program e trabalhou 28 anos na instituição. É um caso raro e documentado de requalificação coletiva antecipada, décadas antes de a expressão virar jargão corporativo.']},
@@ -218,7 +229,7 @@ const P = [
 { era:'nasa', yr:'1955', nm:'Annie Easley', role:'Programadora da NASA · foguete Centaur',
   tpl:'afro', hair:'blk', skin:'d', shirt:'#7ba82e',
   tags:['centaur','energia','fortran'],
-  src:'https://www.nasa.gov/people/annie-easley-biography/', srcNm:'NASA',
+  src:'https://www.nasa.gov/history/annie-easley-computer-scientist/', srcNm:'NASA',
   body:['Entrou na NACA em 1955 como computadora humana e migrou para programação quando as máquinas chegaram, aprendendo Fortran e SOAP por conta própria.',
         'Desenvolveu código para o foguete Centaur, estágio superior movido a hidrogênio líquido que viabilizou missões como a Cassini. Também trabalhou em análise de tecnologias de energia alternativa e sistemas de bateria.',
         'Foi ativa em programas de recrutamento e mentoria da agência e falava abertamente sobre as barreiras que encontrou. Costumava dizer que, quando alguém tinha atitude preconceituosa, o problema era dessa pessoa, e ela seguia trabalhando.']},
@@ -234,7 +245,7 @@ const P = [
 { era:'nasa', yr:'1960', nm:'Melba Roy Mouton', role:'Chefe de programação · satélites Echo',
   tpl:'updo', hair:'blk', skin:'d', shirt:'#2f7d8a',
   tags:['echo','rastreamento','goddard'],
-  src:'https://www.nasa.gov/image-article/melba-roy/', srcNm:'NASA',
+  src:'https://www.nasa.gov/image-article/melba-roy-computer-nasa-goddard/', srcNm:'NASA',
   body:['Liderou no início dos anos 1960 o grupo de matemáticas que calculava e verificava as órbitas dos satélites Echo 1 e 2, os primeiros satélites de comunicação passiva, que refletiam sinais de rádio de volta para a Terra.',
         'O trabalho envolvia produzir as tabelas de posicionamento que permitiam a observadores no solo localizar os satélites no céu. Errar significava perder a janela de contato.',
         'Chegou ao cargo de supervisora-chefe de programação e matemática no Goddard Space Flight Center, posição de comando técnico raríssima para uma mulher negra naquele contexto.']},
@@ -242,7 +253,7 @@ const P = [
 { era:'nasa', yr:'1962', nm:'Katherine Johnson', role:'Matemática da NASA · trajetórias orbitais',
   tpl:'updo', hair:'blk', skin:'d', shirt:'#c9a227',
   tags:['friendship 7','apollo','trajetória'],
-  src:'https://www.nasa.gov/people/katherine-johnson-biography/', srcNm:'NASA',
+  src:'https://www.nasa.gov/centers-and-facilities/langley/katherine-johnson-biography/', srcNm:'NASA',
   body:['Trabalhou na agência quando "computador" ainda era um cargo ocupado por mulheres, e no caso dela por mulheres negras, em uma sala separada das demais.',
         'Calculou à mão a trajetória do voo suborbital de Alan Shepard e a janela de lançamento do Friendship 7. John Glenn se recusou a embarcar, em 1962, até que ela conferisse pessoalmente os números que o computador eletrônico havia produzido. Ela conferiu. O voo deu certo.',
         'Também contribuiu para os cálculos de encontro orbital do programa Apollo. Recebeu a Medalha Presidencial da Liberdade em 2015 e teve uma instalação de pesquisa da NASA batizada com seu nome em 2016. Morreu em 2020, aos 101 anos.']},
@@ -258,7 +269,7 @@ const P = [
 { era:'nasa', yr:'1969', nm:'Margaret Hamilton', role:'MIT · software de voo da Apollo',
   tpl:'long', hair:'brn', skin:'l', shirt:'#c95f2e',
   tags:['apollo 11','engenharia de software','prioridade'],
-  src:'https://www.nasa.gov/history/margaret-hamilton-apollo-software-engineer/', srcNm:'NASA',
+  src:'https://news.mit.edu/2016/apollo-code-developer-margaret-hamilton-receives-presidential-medal-of-freedom-1117', srcNm:'MIT News',
   body:['Liderou a divisão de engenharia de software do MIT Instrumentation Laboratory que escreveu o código de bordo da Apollo. Cunhou a própria expressão "engenharia de software" para forçar a área a ser tratada com a mesma seriedade que hardware.',
         'Insistiu, contra resistência interna, em construir tratamento de erro e escalonamento por prioridade no sistema. Durante a descida da Apollo 11, o computador de bordo emitiu alarmes 1202 e 1201 por sobrecarga. O software descartou tarefas de baixa prioridade e manteve a navegação funcionando. Armstrong pousou.',
         'Recebeu a Medalha Presidencial da Liberdade em 2016. Uma foto conhecida mostra ela ao lado da pilha impressa do código da Apollo, mais alta que ela.']},
@@ -266,7 +277,7 @@ const P = [
 { era:'nasa', yr:'1972', nm:'Karen Spärck Jones', role:'Cambridge · recuperação de informação',
   tpl:'short', hair:'gry', skin:'l', shirt:'#4a5d8a',
   tags:['idf','tf-idf','pln'],
-  src:'https://www.cl.cam.ac.uk/misc/obituaries/sparckjones/', srcNm:'University of Cambridge',
+  src:'https://www.cl.cam.ac.uk/archive/ksj21/', srcNm:'University of Cambridge',
   body:['Publicou em 1972 o conceito de frequência inversa de documento, o IDF: a ideia de que palavras raras em uma coleção carregam mais informação sobre um documento do que palavras comuns.',
         'Esse princípio é a base do TF-IDF, que sustentou motores de busca por décadas e permanece como baseline em processamento de linguagem natural até hoje.',
         'Trabalhou em Cambridge dos anos 1970 aos 2000 e insistia publicamente que mais mulheres deveriam entrar em computação. A British Computer Society criou um prêmio com o nome dela depois de sua morte, em 2007.']},
@@ -274,7 +285,7 @@ const P = [
 { era:'nasa', yr:'1978', nm:'Yvonne Brill', role:'Engenheira aeroespacial · propulsão de satélites',
   tpl:'short', hair:'brn', skin:'l', shirt:'#8a6f2e',
   tags:['propulsão','órbita','patente'],
-  src:'https://www.invent.org/inductees/yvonne-c-brill', srcNm:'National Inventors Hall of Fame',
+  src:'https://www.invent.org/inductees/yvonne-brill', srcNm:'National Inventors Hall of Fame',
   body:['Inventou o sistema de propulsão elétrica por hidrazina que resolve o problema de manter satélites estáveis em órbita geoestacionária gastando menos combustível. O design se tornou padrão da indústria de satélites.',
         'Trabalhou em regime de meio período durante anos para conciliar carreira e a criação de três filhos, algo incomum e mal visto na engenharia aeroespacial da época.',
         'Recebeu a Medalha Nacional de Tecnologia e Inovação dos Estados Unidos em 2011. Quando morreu, em 2013, o obituário do New York Times abriu falando do estrogonofe que ela cozinhava antes de mencionar a invenção. A reação pública forçou o jornal a reescrever o texto.']},
@@ -340,7 +351,7 @@ const P = [
 { era:'modern', yr:'2019', nm:'Katie Bouman', role:'Caltech · imagem do buraco negro',
   tpl:'long', hair:'brn', skin:'l', shirt:'#2e4a8a',
   tags:['chirp','m87','event horizon'],
-  src:'https://www.caltech.edu/about/news/katie-bouman-black-hole-image', srcNm:'Caltech',
+  src:'https://www.caltech.edu/about/news/seeing-farther-and-deeper-interview-katie-bouman', srcNm:'Caltech',
   body:['Liderou, durante o doutorado no MIT, o desenvolvimento do algoritmo CHIRP, que reconstrói uma imagem coerente a partir de dados esparsos e ruidosos captados por radiotelescópios espalhados pelo planeta.',
         'Sem esse tipo de reconstrução computacional, os dados do Event Horizon Telescope seriam apenas interferometria bruta. Em abril de 2019, a primeira imagem de um buraco negro, o M87, foi divulgada e virou capa no mundo inteiro.',
         'A foto dela reagindo ao ver a imagem se formar circulou quase tanto quanto o resultado científico. Hoje é professora no Caltech, trabalhando em imageamento computacional.']},
@@ -381,7 +392,7 @@ const P = [
 { era:'now', yr:'2026', nm:'Katerina Spranger', role:'Oxford Heartbeat · Prémio Europeu 2026',
   tpl:'long', hair:'brn', skin:'l', shirt:'#c9642e',
   tags:['healthtech','ia médica','fundadora'],
-  src:'https://eic.ec.europa.eu/eu-prizes/european-prize-women-innovators_en', srcNm:'Comissão Europeia',
+  src:'https://eic.ec.europa.eu/news/european-prize-women-innovators-2026-winners-announced-2026-06-04_en', srcNm:'Comissão Europeia',
   body:['Venceu em 2026 a categoria principal do Prémio Europeu para Mulheres Inovadoras, concedido pela Comissão Europeia na cúpula do Conselho Europeu de Inovação em Bruxelas, com prêmio de cem mil euros.',
         'Fundadora e CEO da Oxford Heartbeat, empresa que usa inteligência artificial para planejar cirurgias de aneurisma cerebral, simulando como o stent vai se comportar dentro do vaso antes de o cirurgião entrar na sala.',
         'A edição de 2026 concentrou vencedoras em saúde, sustentabilidade, tecnologia espacial e rastreabilidade digital, recorte que indica onde a inovação liderada por mulheres está se concentrando na Europa.']},
@@ -389,7 +400,7 @@ const P = [
 { era:'now', yr:'2026', nm:'Jennifer Tour Chayes', role:'UC Berkeley · reitora de computação',
   tpl:'long', hair:'brn', skin:'l', shirt:'#8a4a2e',
   tags:['berkeley','redes','forbes 50'],
-  src:'https://cdss.berkeley.edu/about/leadership', srcNm:'UC Berkeley CDSS',
+  src:'https://cdss.berkeley.edu/leadership', srcNm:'UC Berkeley CDSS',
   body:['Reitora do College of Computing, Data Science and Society da UC Berkeley, listada pela Forbes em 2026 entre as cinquenta mulheres acima de cinquenta anos mais relevantes em ciência e tecnologia.',
         'Antes da academia, passou anos na Microsoft Research, onde fundou e liderou grupos de teoria e de ciência social computacional. Pesquisa teoria de grafos aleatórios, redes e aprendizado de máquina.',
         'Uma reitoria de computação em Berkeley é posição de definição de agenda: decide o que centenas de pesquisadores vão priorizar nos próximos anos.']},

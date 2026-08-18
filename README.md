@@ -51,6 +51,38 @@ git push -u origin main
 
 O arquivo `.nojekyll` já está incluído para o GitHub servir os arquivos direto, sem processar com Jekyll.
 
+## Backend do leaderboard (Cloudflare Workers)
+
+O jogo (`game.html`) guarda um placar global num Cloudflare Worker + KV — plano gratuito (100 mil requisições/dia, 1 GB de storage, sem cartão de crédito). O código do worker está em `backend/worker.js`.
+
+### O que só você pode fazer
+
+1. Criar uma conta grátis em [cloudflare.com](https://cloudflare.com) — só e-mail e senha, sem cartão.
+2. No terminal, rodar:
+   ```bash
+   npx wrangler login
+   ```
+   Abre o navegador pedindo autorização — só você pode clicar em "Allow".
+
+### O que acontece depois, sem copiar/colar nada de volta
+
+Com o login feito, o resto roda direto do terminal, na pasta do worker:
+
+```bash
+npx wrangler kv namespace create "SHE_RUNS_SCORES"
+npx wrangler secret put SECRET_SALT   # gera e cola um valor aleatório quando pedir
+npx wrangler deploy
+```
+
+Isso cria o armazenamento do placar, define o segredo anti-cheat (usado só pra dificultar pontuações falsas via curl direto — não é credencial de conta, e como acaba embutido no `game.html`, a proteção é básica, não criptográfica de verdade) e publica o worker, retornando uma URL do tipo `https://she-runs-worker.SEUNOME.workers.dev`. Essa URL é colada na constante `WORKER_URL` no topo de `game.html`.
+
+### Testando
+
+```bash
+curl https://she-runs-worker.SEUNOME.workers.dev/scores/top10
+```
+Deve retornar `{"scores":[]}` quando ainda não houver pontuações.
+
 ## Correções
 
 Encontrou um erro de data, atribuição ou contexto? Abra uma issue. Compilações históricas erram, e esta certamente tem pontos a melhorar.
