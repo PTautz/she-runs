@@ -26,7 +26,16 @@ html,body{height:100vh}
   padding-left:calc(8px + env(safe-area-inset-left));
   padding-right:calc(8px + env(safe-area-inset-right));
   padding-bottom:calc(8px + env(safe-area-inset-bottom))}
-#topbar{display:flex;justify-content:space-between;align-items:center;width:min(1300px,98vw)}
+/* uma única largura pra tudo (barra do topo, canvas, botões) — assim as bordas
+   sempre batem exatas, em vez de cada elemento calcular seu próprio min() e
+   às vezes sobrar um pouco de um lado */
+:root{ --game-w:min(1300px, 98vw, calc((100vh - 128px) * 1.7763)); }
+@supports (height:100svh){ :root{ --game-w:min(1300px, 98vw, calc((100svh - 128px) * 1.7763)); } }
+@media (max-height:480px){
+  :root{ --game-w:min(1300px, 98vw, calc((100vh - 56px) * 1.7763)); }
+  @supports (height:100svh){ :root{ --game-w:min(1300px, 98vw, calc((100svh - 56px) * 1.7763)); } }
+}
+#topbar{display:flex;justify-content:space-between;align-items:center;width:var(--game-w)}
 #topbar a{color:var(--dim);text-decoration:none;font-size:.5rem;border:2px solid var(--line);
   background:var(--panel);padding:8px 12px}
 #topbar a:hover{color:var(--violet);border-color:var(--violet)}
@@ -60,12 +69,9 @@ html,body{height:100vh}
    o limite — usamos também a altura disponível, senão o jogo fica minúsculo. */
 #gameCanvas{
   box-shadow:0 0 40px rgba(199,125,255,.15), 0 0 0 1px rgba(199,125,255,.2);
-  width:min(1300px, 98vw, calc((100vh - 128px) * 1.7763));
+  width:var(--game-w);
   height:auto}
-@supports (height:100svh){
-  #gameCanvas{width:min(1300px, 98vw, calc((100svh - 128px) * 1.7763))}
-}
-#touchBar{display:none;gap:8px;width:100%;max-width:1300px}
+#touchBar{display:none;gap:8px;width:100%;max-width:var(--game-w)}
 #touchBar button{flex:1;background:var(--panel);border:2px solid var(--line);
   color:var(--text);font-family:inherit;font-size:.55rem;padding:16px 8px;cursor:pointer}
 #touchBar button:active{background:var(--line)}
@@ -74,13 +80,7 @@ html,body{height:100vh}
 @media (max-height:480px){
   #wrap{gap:5px;padding-top:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom))}
   #topbar{display:none}
-  #gameCanvas{width:min(1300px, 98vw, calc((100vh - 56px) * 1.7763))}
   #touchBar button{padding:8px 6px;font-size:.45rem}
-}
-@media (max-height:480px){
-  @supports (height:100svh){
-    #gameCanvas{width:min(1300px, 98vw, calc((100svh - 56px) * 1.7763))}
-  }
 }
 
 #rotatePrompt{display:none}
@@ -94,7 +94,7 @@ html,body{height:100vh}
 #rotatePrompt p{font-size:.75rem;line-height:1.8;color:var(--text)}
 #rotatePrompt p.sub{font-size:.6rem;color:var(--dim)}
 @keyframes rotHint{0%,100%{transform:rotate(0deg)}50%{transform:rotate(90deg)}}
-#endBar{display:none;gap:8px;width:min(1300px,98vw);justify-content:center;flex-wrap:wrap}
+#endBar{display:none;gap:8px;width:var(--game-w);justify-content:center;flex-wrap:wrap}
 #endBar input{font-family:inherit;font-size:.55rem;background:var(--panel);
   border:2px solid var(--line);color:var(--text);padding:12px;width:220px;text-transform:uppercase}
 #endBar input:focus{outline:none;border-color:var(--violet)}
@@ -103,7 +103,7 @@ html,body{height:100vh}
 #endBar button.secondary{border-color:var(--line)}
 #endBar button:disabled{opacity:.4}
 #endStatus{width:100%;text-align:center;font-size:.5rem;color:var(--dim);min-height:1.2em}
-#createBar{display:none;gap:8px;width:min(1300px,98vw);justify-content:center;flex-wrap:wrap;background:var(--panel);border:2px solid var(--good);padding:10px}
+#createBar{display:none;gap:8px;width:var(--game-w);justify-content:center;flex-wrap:wrap;background:var(--panel);border:2px solid var(--good);padding:10px}
 #createBar .fld{display:flex;flex-direction:column;gap:3px;width:200px}
 #createBar label{font-size:.42rem;color:var(--dim)}
 #createBar input{font-family:inherit;font-size:.5rem;background:var(--bg);
