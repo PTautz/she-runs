@@ -158,10 +158,20 @@ html,body{height:100vh}
 'use strict';
 const cv = document.getElementById('gameCanvas');
 const cx = cv.getContext('2d');
-/* coordenadas lógicas 720x405, desenhadas 1.5x maior → nitidez sem refazer o layout */
-const W = 720, H = 405, SCALE = 1.5;
-cx.setTransform(SCALE,0,0,SCALE,0,0);
-cx.imageSmoothingEnabled = false;
+/* coordenadas lógicas 720x405, escaladas para bater com a resolução real exibida → nitidez em qualquer tamanho */
+const W = 720, H = 405;
+function fitCanvas(){
+  const dpr = Math.min(window.devicePixelRatio||1, 2);
+  const rectW = cv.getBoundingClientRect().width || 1080;
+  const bw = Math.max(1, Math.round(rectW*dpr));
+  const bh = Math.round(bw*(H/W));
+  if(cv.width===bw && cv.height===bh) return;
+  cv.width=bw; cv.height=bh;
+  cx.setTransform(bw/W,0,0,bw/W,0,0);
+  cx.imageSmoothingEnabled = false;
+}
+fitCanvas();
+addEventListener('resize', fitCanvas);
 
 /* ══════════ LEADERBOARD ══════════ */
 const WORKER_URL = 'https://she-runs-worker.pantocbt.workers.dev';
