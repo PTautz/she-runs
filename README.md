@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/ada.svg" width="92" alt="Retrato pixel art de Ada Lovelace"> <img src="assets/grace.svg" width="92" alt="Retrato pixel art de Grace Hopper"> <img src="assets/hamilton.svg" width="92" alt="Retrato pixel art de Margaret Hamilton"> <img src="assets/katherine.svg" width="92" alt="Retrato pixel art de Katherine Johnson">
+<img src="assets/readme-hero.png" width="1000" alt="Elas escreveram o código: cabeçalho em pixel art sobre um fundo de estrelas">
 
-# ELAS ESCREVERAM O CÓDIGO
+<img src="assets/ada.svg" width="54" alt="Retrato pixel art de Ada Lovelace"> <img src="assets/grace.svg" width="54" alt="Retrato pixel art de Grace Hopper"> <img src="assets/hamilton.svg" width="54" alt="Retrato pixel art de Margaret Hamilton"> <img src="assets/katherine.svg" width="54" alt="Retrato pixel art de Katherine Johnson">
 
 ### Uma linha do tempo em pixel art sobre mulheres que mudaram a computação.
 
