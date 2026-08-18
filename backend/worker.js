@@ -40,11 +40,11 @@ export default {
 
       const raw = await env.SHE_RUNS_SCORES.get('leaderboard');
       const scores = raw ? JSON.parse(raw) : [];
-      scores.push({ name: name.slice(0, 16).toUpperCase(), score, character, date: new Date().toISOString().slice(0,10) });
+      scores.push({ name: name.slice(0, 3).toUpperCase(), score, character, date: new Date().toISOString().slice(0,10) });
       scores.sort((a, b) => b.score - a.score);
       await env.SHE_RUNS_SCORES.put('leaderboard', JSON.stringify(scores.slice(0, 100)));
 
-      const rank = scores.findIndex(s => s.name === name.slice(0,16).toUpperCase() && s.score === score) + 1;
+      const rank = scores.findIndex(s => s.name === name.slice(0,3).toUpperCase() && s.score === score) + 1;
       return new Response(JSON.stringify({ ok: true, rank }), { headers });
     }
 
