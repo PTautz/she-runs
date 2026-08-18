@@ -1,92 +1,87 @@
-# Elas escreveram o código
+<div align="center">
 
-Linha do tempo interativa em pixel art sobre mulheres na computação, de Ada Lovelace em 1843 às pesquisadoras premiadas em 2026.
+# ELAS ESCREVERAM O CODIGO
 
-**Página no ar:** `https://PTautz.github.io/she-runs/`
+### Uma linha do tempo em pixel art sobre mulheres que mudaram a computacao.
 
-## O que é
+[ABRIR A LINHA DO TEMPO](https://ptautz.github.io/she-runs/) &nbsp;|&nbsp; [JOGAR SHE RUNS](https://ptautz.github.io/she-runs/game.html)
 
-Uma página estática, sem dependências de build, sem framework. Cinco épocas navegáveis, 28 verbetes, retratos gerados em pixel art por código e fundo estrelado animado em canvas.
+`1843 - 2026` &nbsp; `28 VERBETES` &nbsp; `5 ERAS` &nbsp; `PIXEL ART POR CODIGO`
 
-- **HTML, CSS e JavaScript puro.** Um único arquivo `index.html`.
-- **Retratos são desenhados por código** a partir de grades de caracteres 12×13, não são fotografias. Isso evita problemas de licença de imagem e mantém o peso da página baixo.
-- **Cada verbete tem link para a fonte primária.** ACM, NASA, Britannica, Japan Prize Foundation, Comissão Europeia, Internet Hall of Fame e afins.
+</div>
 
-## Nota de método
+---
 
-Os anos exibidos são **do feito**, não de nascimento. Isso foi uma decisão deliberada: numa linha do tempo, a data que importa é quando a coisa aconteceu, e datas de nascimento são uma fonte comum de erro em compilações desse tipo.
+> De Ada Lovelace, em 1843, as pesquisadoras e inovadoras premiadas em 2026.
+> Escolha uma epoca. Clique em cada retrato. Siga as fontes.
 
-Os dados de 2025 e 2026 foram verificados em fontes primárias em agosto de 2026. Os registros históricos vêm de arquivos institucionais (NASA History Office, Computer History Museum, ACM).
+`Elas escreveram o codigo` e uma pagina estatica e interativa sobre mulheres na computacao. Cada verbete situa um feito no tempo, com texto autoral, fonte principal e um retrato pixel art gerado no proprio navegador.
 
-O último verbete, "O placar atual", registra que o Turing Award segue com 3 mulheres entre mais de 70 laureados desde 1966. Isso está na página de propósito. Uma linha do tempo que só sobe seria mais bonita e menos verdadeira.
+## [ 01. A LINHA DO TEMPO ]
 
-## Rodando localmente
+| ERA | PERIODO | O QUE ENCONTRAR |
+| :-- | :-- | :-- |
+| `PIONEIRAS` | 1843 - 1946 | Algoritmos antes dos computadores eletronicos. |
+| `ERA NASA` | 1949 - 1978 | Computadoras humanas, programacao e corrida espacial. |
+| `ERA DIGITAL` | 1980 - 2005 | Internet, interfaces e infraestrutura. |
+| `ERA DA IA` | 2009 - 2019 | Dados, visao computacional e etica algoritmica. |
+| `AGORA` | 2025 - 2026 | Pesquisadoras, inovadoras e o placar atual. |
 
-Nenhuma instalação necessária. Abra o `index.html` no navegador, ou sirva a pasta:
+Os anos mostram o ano do feito, nao a data de nascimento. Em uma linha do tempo, o que importa aqui e quando a contribuicao aconteceu.
+
+## [ 02. COMO FOI FEITO ]
+
+```text
+HTML + CSS + JavaScript puro
+sem framework
+sem etapa de build
+```
+
+- A linha do tempo vive em [`index.html`](index.html).
+- O jogo de plataforma vive em [`game.html`](game.html).
+- Os retratos nao sao fotografias: sao SVGs montados por JavaScript a partir de grades de caracteres `12 x 13`.
+- O fundo estrelado e animado em `canvas`.
+- Cada verbete traz um link para sua fonte principal.
+
+## [ 03. RODAR LOCALMENTE ]
+
+Nao e preciso instalar dependencias. Abra [`index.html`](index.html) no navegador ou sirva a pasta:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-E acesse `http://localhost:8000`.
+Depois, abra `http://localhost:8000`.
 
-## Como publicar no GitHub Pages
+## [ 04. PUBLICACAO ]
 
-1. Crie um repositório novo no GitHub chamado `she-runs` (público).
-2. Suba os arquivos:
+O projeto esta preparado para GitHub Pages. Em um repositorio ja enviado ao GitHub, configure **Settings > Pages** para publicar a branch `main` a partir de `/(root)`.
 
-```bash
-git init
-git add .
-git commit -m "Linha do tempo: mulheres na computação, 1843-2026"
-git branch -M main
-git remote add origin https://github.com/PTautz/she-runs.git
-git push -u origin main
-```
+O arquivo [`.nojekyll`](.nojekyll) garante que os arquivos estaticos sejam servidos sem processamento do Jekyll.
 
-3. No GitHub, vá em **Settings → Pages**.
-4. Em **Source**, escolha **Deploy from a branch**.
-5. Em **Branch**, selecione `main` e a pasta `/ (root)`. Salve.
-6. Aguarde de um a dois minutos. A página aparece em `https://PTautz.github.io/she-runs/`.
+## [ 05. PLACAR DO JOGO ]
 
-O arquivo `.nojekyll` já está incluído para o GitHub servir os arquivos direto, sem processar com Jekyll.
-
-## Backend do leaderboard (Cloudflare Workers)
-
-O jogo (`game.html`) guarda um placar global num Cloudflare Worker + KV — plano gratuito (100 mil requisições/dia, 1 GB de storage, sem cartão de crédito). O código do worker está em `backend/worker.js`.
-
-### O que só você pode fazer
-
-1. Criar uma conta grátis em [cloudflare.com](https://cloudflare.com) — só e-mail e senha, sem cartão.
-2. No terminal, rodar:
-   ```bash
-   npx wrangler login
-   ```
-   Abre o navegador pedindo autorização — só você pode clicar em "Allow".
-
-### O que acontece depois, sem copiar/colar nada de volta
-
-Com o login feito, o resto roda direto do terminal, na pasta do worker:
+O placar global de [`game.html`](game.html) usa um Cloudflare Worker com KV. O codigo fica em [`backend/worker.js`](backend/worker.js).
 
 ```bash
+npx wrangler login
 npx wrangler kv namespace create "SHE_RUNS_SCORES"
-npx wrangler secret put SECRET_SALT   # gera e cola um valor aleatório quando pedir
+npx wrangler secret put SECRET_SALT
 npx wrangler deploy
 ```
 
-Isso cria o armazenamento do placar, define o segredo anti-cheat (usado só pra dificultar pontuações falsas via curl direto — não é credencial de conta, e como acaba embutido no `game.html`, a proteção é básica, não criptográfica de verdade) e publica o worker, retornando uma URL do tipo `https://she-runs-worker.SEUNOME.workers.dev`. Essa URL é colada na constante `WORKER_URL` no topo de `game.html`.
-
-### Testando
+Depois do deploy, coloque a URL retornada na constante `WORKER_URL` em [`game.html`](game.html). Para conferir o placar vazio ou publicado:
 
 ```bash
 curl https://she-runs-worker.SEUNOME.workers.dev/scores/top10
 ```
-Deve retornar `{"scores":[]}` quando ainda não houver pontuações.
 
-## Correções
+## [ 06. FONTES E CORRECOES ]
 
-Encontrou um erro de data, atribuição ou contexto? Abra uma issue. Compilações históricas erram, e esta certamente tem pontos a melhorar.
+As fontes aparecem em cada verbete. As referencias incluem, entre outras, NASA History Office, ACM Awards, Computer History Museum, Japan Prize Foundation, Comissao Europeia e Internet Hall of Fame.
 
-## Licença
+Dados de 2025 e 2026 foram verificados em fontes primarias em agosto de 2026. Encontrou erro de data, atribuicao ou contexto? Abra uma issue: uma linha do tempo historica precisa continuar sendo revisada.
 
-Código sob licença MIT. Os textos biográficos são de minha autoria, redigidos a partir das fontes linkadas em cada verbete.
+## [ LICENCA ]
+
+Codigo sob licenca MIT. Os textos biograficos sao de autoria do projeto, redigidos a partir das fontes linkadas em cada verbete.
