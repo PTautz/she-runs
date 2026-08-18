@@ -570,7 +570,7 @@ function resetStats(){ for(const k in stats) stats[k]=0; }
 
 const player={
   x:120, y:GROUND_Y, vy:0, w:30,
-  ground:true, duck:false, coyote:0, buffer:0,
+  ground:true, duck:false, coyote:0, buffer:0, jumps:0,
   legFrame:0, hp:100,
   charge:0,            // 0..CHARGE_MAX — enche desviando
   freeze:0, shield:false, orbit:0, skillActiveTimer:0,
@@ -596,6 +596,12 @@ function spawnObstacle(){
 
 /* ══════════ INPUT ══════════ */
 const keys={};
+function tryJump(){
+  if(player.jumps===0 && (player.ground || player.coyote>0)){ player.buffer=BUFFER; }
+  else if(player.jumps<2){
+    player.vy=JUMP_FORCE; player.jumps=2; SFX.jump(); burst(player.x, player.y, '#ffffff', 6);
+  }
+}
 addEventListener('keydown',e=>{
   if(e.repeat) return;
   if(document.activeElement && document.activeElement.tagName==='INPUT') return;
@@ -626,7 +632,7 @@ addEventListener('keydown',e=>{
     return;
   }
   if(state==='RUN'){
-    if(e.code==='Space'||e.code==='ArrowUp') player.buffer=BUFFER;
+    if(e.code==='Space'||e.code==='ArrowUp') tryJump();
     if(e.code==='ArrowDown') player.duck=true;
     if(e.code==='KeyZ'||e.code==='KeyF') useSkill();
   }
@@ -649,7 +655,7 @@ const btn=(id,down,up)=>{
 function primaryAction(){
   if(state==='SELECT'){ if(selIdx>=CHARS.length) openCreate(); else startRun(); }
   else if(state==='VICTORY'||state==='GAMEOVER'){ state='SELECT'; hideEndBar(); }
-  else if(state==='RUN') player.buffer=BUFFER;
+  else if(state==='RUN') tryJump();
   else if(state==='BOSSINTRO'||state==='BOSSTEXT'||state==='BOSSWIN') advanceBossText();
   else if(state==='BOSSMENU') chooseBossAction();
   else if(state==='CREATE') cycleDraft(1);
@@ -676,7 +682,7 @@ cv.addEventListener('touchstart',e=>{
   e.preventDefault();
   const r=cv.getBoundingClientRect();
   touchDrag={x:e.touches[0].clientX-r.left, y:e.touches[0].clientY-r.top};
-  if(state==='RUN'){ player.buffer=BUFFER; keys['Space']=true; }   // toque simples também pula; segurar pula mais alto
+  if(state==='RUN'){ tryJump(); keys['Space']=true; }   // toque simples também pula; toque de novo no ar faz pulo duplo
 },{passive:false});
 cv.addEventListener('touchmove',e=>{
   if(!touchDrag) return;
@@ -748,7 +754,7 @@ function startRun(){
   hero=CHARS[selIdx];
   score=0; pressure=0; combo=0; comboMult=1; resetStats();
   progress=0; obstacles=[]; particles=[]; floatTexts=[];
-  player.x=120; player.y=GROUND_Y; player.vy=0; player.ground=true; player.duck=false;
+  player.x=120; player.y=GROUND_Y; player.vy=0; player.ground=true; player.duck=false; player.jumps=0;
   player.hp=100; player.charge=0; player.freeze=0; player.shield=false; player.orbit=0;
   spawnTimer=100; state='RUN';
   hideEndBar(); audio();
@@ -779,7 +785,7 @@ function updateRun(){
   if(player.buffer>0){
     player.buffer--;
     if(player.coyote>0){
-      player.vy=JUMP_FORCE; player.ground=false; player.coyote=0; player.buffer=0;
+      player.vy=JUMP_FORCE; player.ground=false; player.coyote=0; player.buffer=0; player.jumps=1;
       SFX.jump(); burst(player.x, player.y, '#ffffff', 3);
     }
   }
@@ -787,7 +793,7 @@ function updateRun(){
     player.vy=Math.min(MAX_FALL, player.vy+GRAVITY);
     if(player.vy<0 && !(keys['Space']||keys['ArrowUp'])) player.vy+=GRAVITY*.8;
     player.y+=player.vy;
-    if(player.y>=GROUND_Y){ player.y=GROUND_Y; player.vy=0; player.ground=true; }
+    if(player.y>=GROUND_Y){ player.y=GROUND_Y; player.vy=0; player.ground=true; player.jumps=0; }
   }
   player.legFrame=(t/7|0)%3;
 
