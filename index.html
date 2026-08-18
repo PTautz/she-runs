@@ -34,21 +34,22 @@ h1{font-family:var(--pixel);font-size:clamp(.9rem,3.1vw,1.55rem);line-height:2.0
    é o que dá a leitura de rastro colorido seguindo o título */
 .titleEcho{position:absolute;inset:0 0 auto 0;margin:0 0 16px;color:transparent;
   pointer-events:none;user-select:none;-webkit-user-select:none;z-index:-1}
-.titleEcho:nth-of-type(1){text-shadow:0 0 7px #ff3b6f;opacity:.4;
+.titleEcho:nth-of-type(1){text-shadow:0 0 6px #ff3b6f;opacity:.6;
   animation:titleBob 4s ease-in-out infinite -0.28s}
-.titleEcho:nth-of-type(2){text-shadow:0 0 7px #ff9d3f;opacity:.36;
+.titleEcho:nth-of-type(2){text-shadow:0 0 6px #ff9d3f;opacity:.55;
   animation:titleBob 4s ease-in-out infinite -0.56s}
-.titleEcho:nth-of-type(3){text-shadow:0 0 8px #5ddc9c;opacity:.32;
+.titleEcho:nth-of-type(3){text-shadow:0 0 7px #5ddc9c;opacity:.5;
   animation:titleBob 4s ease-in-out infinite -0.84s}
-.titleEcho:nth-of-type(4){text-shadow:0 0 8px #4cc9f0;opacity:.28;
+.titleEcho:nth-of-type(4){text-shadow:0 0 7px #4cc9f0;opacity:.45;
   animation:titleBob 4s ease-in-out infinite -1.12s}
-.titleEcho:nth-of-type(5){text-shadow:0 0 9px #c77dff;opacity:.24;
+.titleEcho:nth-of-type(5){text-shadow:0 0 8px #c77dff;opacity:.4;
   animation:titleBob 4s ease-in-out infinite -1.4s}
+/* mais horizontal, menos vertical: parece deslizar pros lados em vez de pular */
 @keyframes titleBob{
   0%{transform:translate(0,0) rotate(0deg)}
-  25%{transform:translate(4px,-13px) rotate(.6deg)}
-  50%{transform:translate(0,-3px) rotate(0deg)}
-  75%{transform:translate(-4px,-13px) rotate(-.6deg)}
+  25%{transform:translate(11px,-5px) rotate(.4deg)}
+  50%{transform:translate(0,-2px) rotate(0deg)}
+  75%{transform:translate(-11px,-5px) rotate(-.4deg)}
   100%{transform:translate(0,0) rotate(0deg)}
 }
 @keyframes neonPulse{
