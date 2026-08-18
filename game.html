@@ -27,12 +27,30 @@ html,body{height:100vh}
   padding-right:calc(8px + env(safe-area-inset-right));
   padding-bottom:calc(8px + env(safe-area-inset-bottom))}
 #topbar{display:flex;justify-content:space-between;align-items:center;width:min(1080px,96vw)}
-#topbar a{color:var(--dim);text-decoration:none;font-size:.5rem;border:2px solid var(--line);
+#topbar a{color:var(--dim);text-decoration:none;font-size:.5rem;
   background:var(--panel);padding:8px 12px}
-#topbar a:hover{color:var(--violet);border-color:var(--violet)}
+#topbar a:hover{color:var(--violet)}
+/* mesmo estilo de contorno arco-íris do título da timeline: várias sombras de
+   texto pequenas em 8 direções seguindo cada letra + hue-rotate girando */
+.logo{font-size:.6rem;color:#fff;letter-spacing:.02em;
+  text-shadow:
+    2px 2px 0 #6b3fd4,
+    0 -1.3px 2px #ff3b6f, 1.2px -1px 2px #ff9d3f, 1.6px 0 2px #f7e343,
+    1.2px 1px 2px #5ddc9c, 0 1.3px 2px #4cc9f0, -1.2px 1px 2px #7b6bff,
+    -1.6px 0 2px #c77dff, -1.2px -1px 2px #ff5df0;
+  animation:hueSpin 5s linear infinite}
+@keyframes hueSpin{ 0%{filter:hue-rotate(0deg)} 100%{filter:hue-rotate(360deg)} }
+/* moldura fina que gira em arco-íris — aplicada nos quadros de UI ao redor do jogo */
+@property --frame-a{ syntax:'<angle>'; inherits:false; initial-value:0deg; }
+.rainbowFrame{
+  border:3px solid transparent;
+  border-image:conic-gradient(from var(--frame-a),#ff3b6f,#ff9d3f,#f7e343,#5ddc9c,#4cc9f0,#7b6bff,#c77dff,#ff3b6f) 1;
+  animation:frameSpin 5s linear infinite;
+}
+@keyframes frameSpin{ to{ --frame-a:360deg } }
 /* 1080x608 internos. Em telas curtas (celular), a largura disponível deixa de ser
    o limite — usamos também a altura disponível, senão o jogo fica minúsculo. */
-#gameCanvas{border:3px solid var(--line);
+#gameCanvas{
   box-shadow:0 0 40px rgba(199,125,255,.15), 0 0 0 1px rgba(199,125,255,.2);
   width:min(1080px, 96vw, calc((100vh - 128px) * 1.7763));
   height:auto}
@@ -97,10 +115,10 @@ html,body{height:100vh}
 </div>
 <div id="wrap">
   <div id="topbar">
-    <span style="font-size:.6rem;color:var(--violet);text-shadow:2px 2px 0 #6b3fd4">SHE RUNS</span>
-    <a href="index.html">← TIMELINE</a>
+    <span class="logo">SHE RUNS</span>
+    <a href="index.html" class="rainbowFrame">← TIMELINE</a>
   </div>
-  <canvas id="gameCanvas" width="1080" height="608"></canvas>
+  <canvas id="gameCanvas" class="rainbowFrame" width="1080" height="608"></canvas>
   <div id="touchBar">
     <button id="btnDuck">↓ ABAIXAR</button>
     <button id="btnJump">↑ PULAR</button>
@@ -1087,6 +1105,23 @@ function centerText(lines, y0, color, size){
   cx.fillStyle=color||C.text;
   lines.forEach((l,i)=>{ const w=cx.measureText(l).width; cx.fillText(l,(W-w)/2,y0+i*(size?size*2:20)); });
 }
+/* mesmo contorno arco-íris das outras telas, desenhado à mão no canvas:
+   8 cópias coloridas em volta do texto, com o matiz girando junto com `t` */
+const RAINBOW_HUES=[0,45,90,135,180,225,270,315];
+const RAINBOW_OFFS=[[0,-2],[1.6,-1.6],[2,0],[1.6,1.6],[0,2],[-1.6,1.6],[-2,0],[-1.6,-1.6]];
+function rainbowText(lines, y0, size){
+  const s=size||14;
+  cx.font=s+'px "Press Start 2P"';
+  lines.forEach((l,i)=>{
+    const w=cx.measureText(l).width, x=(W-w)/2, y=y0+i*(s*2);
+    RAINBOW_OFFS.forEach((o,idx)=>{
+      cx.fillStyle=`hsl(${(t*1.5+RAINBOW_HUES[idx])%360},85%,65%)`;
+      cx.fillText(l, x+o[0], y+o[1]);
+    });
+    cx.fillStyle='#fff';
+    cx.fillText(l, x, y);
+  });
+}
 function drawScoreBreakdown(y0){
   const rows=[['DESVIOS',stats.desvio],['CÓDIGO COLETADO',stats.coleta],['DESVIOS PERFEITOS',stats.perfeito],
               ['ESPECIAL',stats.especial],['CHEFE VENCIDO',stats.chefe]].filter(r=>r[1]>0);
@@ -1197,7 +1232,7 @@ async function openLeaderboard(){
 document.getElementById('lbBtn').addEventListener('click', openLeaderboard);
 function drawLeaderboard(){
   drawBackground(.5,t);
-  centerText(['HALL DA FAMA'],48,C.gold,14);
+  rainbowText(['HALL DA FAMA'],48,14);
   if(lbData===null){
     centerText(['carregando...'],150,C.dim,8);
   } else {
