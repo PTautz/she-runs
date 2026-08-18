@@ -26,10 +26,10 @@ html,body{height:100vh}
   padding-left:calc(8px + env(safe-area-inset-left));
   padding-right:calc(8px + env(safe-area-inset-right));
   padding-bottom:calc(8px + env(safe-area-inset-bottom))}
-#topbar{display:flex;justify-content:space-between;align-items:center;width:min(1080px,96vw)}
-#topbar a{color:var(--dim);text-decoration:none;font-size:.5rem;
+#topbar{display:flex;justify-content:space-between;align-items:center;width:min(1300px,98vw)}
+#topbar a{color:var(--dim);text-decoration:none;font-size:.5rem;border:2px solid var(--line);
   background:var(--panel);padding:8px 12px}
-#topbar a:hover{color:var(--violet)}
+#topbar a:hover{color:var(--violet);border-color:var(--violet)}
 /* mesmo estilo de contorno arco-íris do título da timeline: várias sombras de
    texto pequenas em 8 direções seguindo cada letra + hue-rotate girando */
 .logo{font-size:.6rem;color:#fff;letter-spacing:.02em;
@@ -47,17 +47,25 @@ html,body{height:100vh}
   border-image:conic-gradient(from var(--frame-a),#ff3b6f,#ff9d3f,#f7e343,#5ddc9c,#4cc9f0,#7b6bff,#c77dff,#ff3b6f) 1;
   animation:frameSpin 5s linear infinite;
 }
+/* versão discreta pro canvas: bem mais fina e translúcida, não chama atenção pro limite */
+.rainbowFrameThin{
+  border:1.5px solid transparent;
+  border-image:conic-gradient(from var(--frame-a),
+    rgba(255,59,111,.55),rgba(255,157,63,.55),rgba(247,227,67,.55),rgba(93,220,156,.55),
+    rgba(76,201,240,.55),rgba(123,107,255,.55),rgba(199,125,255,.55),rgba(255,59,111,.55)) 1;
+  animation:frameSpin 5s linear infinite;
+}
 @keyframes frameSpin{ to{ --frame-a:360deg } }
 /* 1080x608 internos. Em telas curtas (celular), a largura disponível deixa de ser
    o limite — usamos também a altura disponível, senão o jogo fica minúsculo. */
 #gameCanvas{
   box-shadow:0 0 40px rgba(199,125,255,.15), 0 0 0 1px rgba(199,125,255,.2);
-  width:min(1080px, 96vw, calc((100vh - 128px) * 1.7763));
+  width:min(1300px, 98vw, calc((100vh - 128px) * 1.7763));
   height:auto}
 @supports (height:100svh){
-  #gameCanvas{width:min(1080px, 96vw, calc((100svh - 128px) * 1.7763))}
+  #gameCanvas{width:min(1300px, 98vw, calc((100svh - 128px) * 1.7763))}
 }
-#touchBar{display:none;gap:8px;width:100%;max-width:1080px}
+#touchBar{display:none;gap:8px;width:100%;max-width:1300px}
 #touchBar button{flex:1;background:var(--panel);border:2px solid var(--line);
   color:var(--text);font-family:inherit;font-size:.55rem;padding:16px 8px;cursor:pointer}
 #touchBar button:active{background:var(--line)}
@@ -66,12 +74,12 @@ html,body{height:100vh}
 @media (max-height:480px){
   #wrap{gap:5px;padding-top:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom))}
   #topbar{display:none}
-  #gameCanvas{width:min(1080px, 96vw, calc((100vh - 56px) * 1.7763))}
+  #gameCanvas{width:min(1300px, 98vw, calc((100vh - 56px) * 1.7763))}
   #touchBar button{padding:8px 6px;font-size:.45rem}
 }
 @media (max-height:480px){
   @supports (height:100svh){
-    #gameCanvas{width:min(1080px, 96vw, calc((100svh - 56px) * 1.7763))}
+    #gameCanvas{width:min(1300px, 98vw, calc((100svh - 56px) * 1.7763))}
   }
 }
 
@@ -86,7 +94,7 @@ html,body{height:100vh}
 #rotatePrompt p{font-size:.75rem;line-height:1.8;color:var(--text)}
 #rotatePrompt p.sub{font-size:.6rem;color:var(--dim)}
 @keyframes rotHint{0%,100%{transform:rotate(0deg)}50%{transform:rotate(90deg)}}
-#endBar{display:none;gap:8px;width:min(1080px,96vw);justify-content:center;flex-wrap:wrap}
+#endBar{display:none;gap:8px;width:min(1300px,98vw);justify-content:center;flex-wrap:wrap}
 #endBar input{font-family:inherit;font-size:.55rem;background:var(--panel);
   border:2px solid var(--line);color:var(--text);padding:12px;width:220px;text-transform:uppercase}
 #endBar input:focus{outline:none;border-color:var(--violet)}
@@ -95,7 +103,7 @@ html,body{height:100vh}
 #endBar button.secondary{border-color:var(--line)}
 #endBar button:disabled{opacity:.4}
 #endStatus{width:100%;text-align:center;font-size:.5rem;color:var(--dim);min-height:1.2em}
-#createBar{display:none;gap:8px;width:min(1080px,96vw);justify-content:center;flex-wrap:wrap;background:var(--panel);border:2px solid var(--good);padding:10px}
+#createBar{display:none;gap:8px;width:min(1300px,98vw);justify-content:center;flex-wrap:wrap;background:var(--panel);border:2px solid var(--good);padding:10px}
 #createBar .fld{display:flex;flex-direction:column;gap:3px;width:200px}
 #createBar label{font-size:.42rem;color:var(--dim)}
 #createBar input{font-family:inherit;font-size:.5rem;background:var(--bg);
@@ -116,9 +124,9 @@ html,body{height:100vh}
 <div id="wrap">
   <div id="topbar">
     <span class="logo">SHE RUNS</span>
-    <a href="index.html" class="rainbowFrame">← TIMELINE</a>
+    <a href="index.html">← TIMELINE</a>
   </div>
-  <canvas id="gameCanvas" class="rainbowFrame" width="1080" height="608"></canvas>
+  <canvas id="gameCanvas" class="rainbowFrameThin" width="1080" height="608"></canvas>
   <div id="touchBar">
     <button id="btnDuck">↓ ABAIXAR</button>
     <button id="btnJump">↑ PULAR</button>
