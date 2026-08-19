@@ -445,6 +445,30 @@ function getSprite(hero, shape){
   return SPRITES[shape];
 }
 
+/* ══════════ SPRITES DE OBSTÁCULO EM PNG — mesma arquitetura dos personagens ══════════
+   assets/obstacles/<pasta>/<shape em minúsculo>.png, fundo transparente.
+   Cobre só os obstáculos-assinatura (BUG e CODE) de cada personagem, que são os
+   que têm forma própria; os 6 compartilhados continuam desenhados por código.
+   Sem arquivo (ou falha ao carregar) → cai automático no desenho procedural,
+   igual ao sistema de sprites de corrida — dá pra integrar um de cada vez. */
+const obstacleSpriteCache = {}; // { 'charId:SHAPE': {img, loaded} }
+function loadObstacleSprite(charId, shape){
+  const folder = SPRITE_FOLDER[charId];
+  if(!folder) return null;
+  const key = charId+':'+shape;
+  if(obstacleSpriteCache[key]) return obstacleSpriteCache[key];
+  const entry = { img:new Image(), loaded:false };
+  entry.img.onload = ()=>{ entry.loaded=true; };
+  entry.img.onerror = ()=>{ entry.loaded=false; };
+  entry.img.src = `assets/obstacles/${folder}/${shape.toLowerCase()}.png?${SPRITE_VERSION}`;
+  obstacleSpriteCache[key] = entry;
+  return entry;
+}
+function hasObstacleSprite(charId, shape){
+  const e = obstacleSpriteCache[charId+':'+shape];
+  return !!(e && e.loaded && e.img.complete && e.img.naturalWidth>0);
+}
+
 /* ══════════ PERSONAGENS — cada uma com especial e chefe próprios ══════════ */
 const CHARS=[
   {
@@ -1081,10 +1105,17 @@ function drawObstacles(){
       cx.fillStyle='rgba(247,195,67,.18)';
       cx.beginPath(); cx.arc(o.x+o.w/2,o.y+o.h/2, o.w*.8+Math.sin(t*.15)*3, 0, 6.28); cx.fill();
     }
-    const [grid,pal]=getSprite(hero, def.shape);
     const ghost = player.freeze>0 && def.deadly;   // ALGORITMO: quase transparente e atravessável
+    const isSignature = SIGNATURE_SPRITES[hero.id] && SIGNATURE_SPRITES[hero.id][def.shape];
+    if(isSignature) loadObstacleSprite(hero.id, def.shape);
     if(ghost) cx.globalAlpha=.2;
-    drawGrid(grid,pal,o.x,o.y,o.w/grid[0].length);
+    if(isSignature && hasObstacleSprite(hero.id, def.shape)){
+      cx.imageSmoothingEnabled=false;
+      cx.drawImage(obstacleSpriteCache[hero.id+':'+def.shape].img, o.x, o.y, o.w, o.h);
+    } else {
+      const [grid,pal]=getSprite(hero, def.shape);
+      drawGrid(grid,pal,o.x,o.y,o.w/grid[0].length);
+    }
     if(ghost) cx.globalAlpha=1;
   });
 }
