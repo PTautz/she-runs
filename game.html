@@ -81,9 +81,14 @@ html,body{height:100vh}
   width:var(--game-w);
   height:auto}
 #touchBar{display:none;gap:8px;width:100%;max-width:var(--game-w)}
-#touchBar button{flex:1;background:var(--panel);border:2px solid var(--line);
-  color:var(--text);font-family:inherit;font-size:.55rem;padding:16px 8px;cursor:pointer}
+#touchBar button{flex:1;background:var(--panel);border:2px solid var(--violet);
+  color:var(--text);font-family:inherit;font-size:.55rem;padding:16px 8px;cursor:pointer;
+  box-shadow:0 0 10px rgba(199,125,255,.4)}
 #touchBar button:active{background:var(--line)}
+/* especial é a única ação com semântica própria (a habilidade, não movimento) —
+   por isso é o único botão que foge do violeta padrão, em dourado, igual ao
+   destaque de habilidade já usado no card de seleção de personagem */
+#touchBar #btnSkill{border-color:var(--gold);box-shadow:0 0 10px rgba(247,195,67,.4)}
 @media (pointer:coarse){ #touchBar{display:flex} }
 /* telas baixas (celular deitado): compacta o topo e os botões pra sobrar mais altura pro jogo */
 @media (max-height:480px){
@@ -103,36 +108,26 @@ html,body{height:100vh}
 #rotatePrompt p{font-size:.75rem;line-height:1.8;color:var(--text)}
 #rotatePrompt p.sub{font-size:.6rem;color:var(--dim)}
 @keyframes rotHint{0%,100%{transform:rotate(0deg)}50%{transform:rotate(90deg)}}
-#lbEntryBtn{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));
-  right:calc(10px + env(safe-area-inset-right));z-index:6;font-family:inherit;font-size:.5rem;
-  background:var(--panel);border:2px solid var(--gold);color:var(--text);padding:9px 12px;cursor:pointer}
-#lbEntryBtn:active{background:var(--line)}
-@media (pointer:coarse){ #lbEntryBtn{font-size:.42rem;padding:8px 10px} }
-/* botão de voltar — visível sempre que a tela atual tem uma tela anterior clara
-   pra onde voltar (hoje: o ranking). Canto oposto ao botão de ranking. */
-#backBtn{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));
-  left:calc(10px + env(safe-area-inset-left));z-index:6;font-family:inherit;font-size:.5rem;
-  background:var(--panel);border:2px solid var(--violet);color:var(--text);padding:9px 12px;cursor:pointer}
-#backBtn:active{background:var(--line)}
-@media (pointer:coarse){ #backBtn{font-size:.42rem;padding:8px 10px} }
-/* dica de "adicionar à tela de início" — só pra iPhone/Safari (onde não dá
-   pra pedir tela cheia numa aba comum), aparece sozinha, sem precisar de
-   botão pra descobrir; mesmo canto do botão voltar (nunca aparecem juntos) */
-#iosHint{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));
-  left:calc(10px + env(safe-area-inset-left));z-index:6;max-width:200px;
-  align-items:center;gap:8px;font-family:inherit;font-size:.42rem;line-height:1.5;
-  background:var(--panel);border:2px solid var(--cyan);color:var(--text);padding:8px}
-#iosHint img{width:28px;height:28px;image-rendering:pixelated;flex:none}
-#iosHint button{position:absolute;top:-8px;right:-8px;width:18px;height:18px;border-radius:50%;
-  background:var(--bg);border:2px solid var(--cyan);color:var(--text);font-family:inherit;
-  font-size:.5rem;line-height:1;padding:0;cursor:pointer}
-/* setas de trocar personagem — só no mobile, cantos livres da tela de seleção */
+/* botões flutuantes de canto (ranking / voltar) — mesmo violeta e mesmo brilho
+   dos botões circulares, só que em formato de chip (precisam de texto) */
+#lbEntryBtn,#backBtn{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));
+  z-index:6;font-family:inherit;font-size:.5rem;
+  background:var(--panel);border:2px solid var(--violet);color:var(--text);padding:9px 12px;cursor:pointer;
+  box-shadow:0 0 10px rgba(199,125,255,.4)}
+#lbEntryBtn{right:calc(10px + env(safe-area-inset-right))}
+#backBtn{left:calc(10px + env(safe-area-inset-left))}
+#lbEntryBtn:active,#backBtn:active{background:var(--line)}
+@media (pointer:coarse){ #lbEntryBtn,#backBtn{font-size:.42rem;padding:8px 10px} }
+/* setas de trocar personagem — só no mobile, cantos livres da tela de seleção.
+   Mesmo círculo/brilho violeta do resto dos controles flutuantes (touchBar,
+   ranking, voltar) — um único sistema visual, não um botão por estilo. */
 #charNavBar{display:none}
 @media (pointer:coarse){
   #charNavBar{position:fixed;inset:0;pointer-events:none;display:block}
   #charNavBar button{position:absolute;pointer-events:auto;top:50%;transform:translateY(-50%);
-    width:44px;height:60px;border-radius:10px;font-family:inherit;font-size:.9rem;
-    background:var(--panel);border:2px solid var(--violet);color:var(--text)}
+    width:56px;height:56px;border-radius:50%;font-family:inherit;font-size:1.1rem;
+    background:var(--panel);border:2px solid var(--violet);color:var(--text);
+    box-shadow:0 0 10px rgba(199,125,255,.4)}
   #charNavBar button:active{background:var(--line)}
   #btnCharPrev{left:calc(8px + env(safe-area-inset-left))}
   #btnCharNext{right:calc(8px + env(safe-area-inset-right))}
@@ -160,12 +155,11 @@ html,body{height:100vh}
   @supports (height:100svh){ #gameCanvas{max-height:100svh} }
   #touchBar{position:fixed;inset:0;display:flex;pointer-events:none;gap:0;width:100%;max-width:none;padding:0}
   #touchBar button{position:absolute;pointer-events:auto;flex:none;
-    width:60px;height:60px;border-radius:50%;padding:0;font-size:.36rem;line-height:1.15}
+    width:56px;height:56px;border-radius:50%;padding:0;font-size:.34rem;line-height:1.15}
   #touchBar #btnDuck{left:calc(18px + env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom))}
-  #touchBar #btnSkill{right:calc(98px + env(safe-area-inset-right));bottom:calc(20px + env(safe-area-inset-bottom));
-    width:50px;height:50px;font-size:.32rem}
+  #touchBar #btnSkill{right:calc(96px + env(safe-area-inset-right));bottom:calc(24px + env(safe-area-inset-bottom))}
   #touchBar #btnJump{right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));
-    width:74px;height:74px;font-size:.4rem}
+    width:72px;height:72px;font-size:.4rem}
   #endBar{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));
     transform:translateX(-50%);width:calc(100vw - 20px);max-width:420px;max-height:min(70vh,70svh);
     overflow-y:auto;z-index:10}
@@ -189,11 +183,6 @@ html,body{height:100vh}
   <canvas id="gameCanvas" class="rainbowFrameThin" width="1080" height="608"></canvas>
   <button id="lbEntryBtn">🏆 VER RANKING</button>
   <button id="backBtn">← VOLTAR</button>
-  <div id="iosHint">
-    <img src="assets/icon-192.png" alt="">
-    <span>adicione à tela de início pra jogar em tela cheia (toque em compartilhar ↑)</span>
-    <button id="iosHintClose" aria-label="Fechar">×</button>
-  </div>
   <div id="charNavBar">
     <button id="btnCharPrev" aria-label="Personagem anterior">◀</button>
     <button id="btnCharNext" aria-label="Próxima personagem">▶</button>
@@ -1304,16 +1293,6 @@ document.getElementById('lbBtn').addEventListener('click', openLeaderboard);
 document.getElementById('lbTopLink').addEventListener('click', openLeaderboard);
 document.getElementById('lbEntryBtn').addEventListener('click', openLeaderboard);
 document.getElementById('backBtn').addEventListener('click', ()=>{ if(state==='LEADERBOARD') state=lbFrom; });
-/* iPhone/Safari não deixa site comum entrar em tela cheia (diferente do
-   Android), então em vez de um botão que não funciona de verdade, avisamos
-   sozinhos o atalho real: instalar na tela de início */
-function isIOS(){ return /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1); }
-function inStandaloneMode(){ return window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true; }
-const iosHintDismissed = ()=> localStorage.getItem('sr_hideIosHint')==='1';
-document.getElementById('iosHintClose').addEventListener('click', ()=>{
-  localStorage.setItem('sr_hideIosHint','1');
-  document.getElementById('iosHint').style.display='none';
-});
 /* mesmos botões ◀▶ servem pra trocar personagem na seleção (toque único)
    e pra mover na corrida (segurar = mover contínuo, igual segurar A/D) */
 function cycleChar(dir){ const tot=CHARS.length; selIdx=(selIdx+dir+tot)%tot; SFX.select(); }
@@ -1357,8 +1336,7 @@ function drawLeaderboard(){
 
 /* ══════════ LOOP ══════════ */
 const topbarEl=document.getElementById('topbar'), lbEntryBtn=document.getElementById('lbEntryBtn'),
-      backBtn=document.getElementById('backBtn'), charNavBar=document.getElementById('charNavBar'),
-      iosHint=document.getElementById('iosHint');
+      backBtn=document.getElementById('backBtn'), charNavBar=document.getElementById('charNavBar');
 function frame(){
   t++;
   if(shake>0) shake--;
@@ -1370,7 +1348,6 @@ function frame(){
   lbEntryBtn.style.display=(state==='SELECT' && getComputedStyle(topbarEl).display==='none')?'block':'none';
   // voltar: visível sempre que dá pra voltar de onde se está (hoje só o ranking)
   backBtn.style.display=(state==='LEADERBOARD')?'block':'none';
-  iosHint.style.display=(state!=='LEADERBOARD' && isIOS() && !inStandaloneMode() && !iosHintDismissed())?'flex':'none';
   // setas ◀▶: trocam personagem na seleção, movem na corrida — só em telas de toque
   charNavBar.style.display=((state==='SELECT'||state==='RUN') && matchMedia('(pointer:coarse)').matches)?'block':'none';
 
