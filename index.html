@@ -160,19 +160,35 @@ const TPL = {
   afro:["..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHSSSSSSHHH","HHHSEESEESHH","HHHSSSSSSSHH",".HHSSMMMSSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
   short:["............","...HHHHHH...","..HHHHHHHH..","..HSSSSSSH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSS..","...SSSSSSS..","....SSSSS...","....SSSS....","..CCCCCCCC..",".CCCCCCCCCC."],
   bun:[".....HH.....","....HHHH....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+  /* franjinha reta cobrindo a testa — quebra a monotonia do 'long' */
+  bangs:["..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHSEESEESHH","HHHSSSSSSSHH",".HHSSMMMSSH.",".HHSSSSSSSH.",".HH.SSSSS.H.",".HH..SSS..H.","..CCCCCCCC..",".CCCCCCCCCC."],
+  /* trança lateral caindo sobre o ombro */
+  braid:["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSSMMMSSH.","..HSSSSSSSH.",".H.SSSSSSS..",".H..SSSSS...",".HCCCCCCCC..",".HCCCCCCCCC."],
+  /* cachos volumosos, mais compactos e arredondados que o afro */
+  curly:[".H.HH.HH.H..","HHHHHHHHHHH.",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSSMMMSSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+  /* corte curto e assimétrico, moderno */
+  pixie:["............","..HHHHHHH...",".HHHHHHHHH..",".HHSSSSSSH..",".HSSSSSSSH..",".HSEESEESH..",".HSSSSSSSH..","..HSSMMMSH..","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
   /* variantes com acessório de identidade — só para quem tem o traço marcante
      na história real (laço da Ada, boné da Grace, óculos da Katherine) */
   updo_pin:["....HH......","...HHHHC....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSSMMMSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
-  cap:[".CCCCCCCC...","CCCCCCCCCCCC","CCCCCCCCCCCC","..HSSSSSSH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSS..","...SSSSSSS..","....SSSSS...","....SSSS....","..CCCCCCCC..",".CCCCCCCCCC."],
+  cap:[".CCCCCCCC...","CCCCCCCCCCCC","CCCCCCCCCCCC","..HSSSSSSH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSS..","...SSSSSSS..","....SSSS....","..CCCCCCCC..",".CCCCCCCCCC."],
   afro_glasses:["..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHSSSSSSHHH","HHHCEESEECHH","HHHSSSSSSSHH",".HHSSMMMSSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
 };
 const SKIN = { l:'#f2c9a8', m:'#c98b5e', d:'#8a5533', dd:'#5f381f' };
 const HAIR = { blk:'#241c30', brn:'#5d3a24', gry:'#b9b4c9', wht:'#e4e0ee', red:'#a8442a' };
+/* olhos maiores ganham cor própria por pessoa — paleta escura e discreta,
+   variando de forma estável (mesmo hash sempre dá a mesma cor pra mesma pessoa) */
+const EYE_COLORS = ['#1a1526','#2a1f14','#142a1f','#14202a','#2a1420','#241f0a'];
+function eyeColorFor(name){
+  let h = 0;
+  for(let i=0;i<name.length;i++) h = (h*31 + name.charCodeAt(i)) >>> 0;
+  return EYE_COLORS[h % EYE_COLORS.length];
+}
 
 function portrait(p, px){
   const g = TPL[p.tpl];
-  /* estilo minimalista: sem boca visível (M vira pele), só olhos como blocos sólidos */
-  const map = { H:HAIR[p.hair], S:SKIN[p.skin], E:'#1a1526', M:SKIN[p.skin], C:p.shirt };
+  /* estilo minimalista: sem boca visível (M vira pele), olhos grandes com cor própria */
+  const map = { H:HAIR[p.hair], S:SKIN[p.skin], E:eyeColorFor(p.nm), M:SKIN[p.skin], C:p.shirt };
   let r = '';
   g.forEach((row,y)=>{
     for(let x=0;x<row.length;x++){
@@ -181,7 +197,8 @@ function portrait(p, px){
       r += '<rect x="'+x+'" y="'+y+'" width="1" height="1" fill="'+map[k]+'"/>';
     }
   });
-  return '<svg viewBox="0 0 12 13" width="'+px+'" shape-rendering="crispEdges" role="img" aria-label="Retrato em pixel art de '+p.nm+'">'+r+'</svg>';
+  const vw = g[0].length, vh = g.length;
+  return '<svg viewBox="0 0 '+vw+' '+vh+'" width="'+px+'" shape-rendering="crispEdges" role="img" aria-label="Retrato em pixel art de '+p.nm+'">'+r+'</svg>';
 }
 
 const ICONS = {
@@ -224,7 +241,7 @@ const P = [
         'O reconhecimento formal veio apenas em 1997, com o prêmio pioneiro da Electronic Frontier Foundation, três anos antes da morte dela.']},
 
 { era:'pioneer', yr:'1946', nm:'As Seis do ENIAC', role:'Programadoras do primeiro computador eletrônico',
-  tpl:'long', hair:'brn', skin:'l', shirt:'#6b4fa8',
+  tpl:'bangs', hair:'brn', skin:'l', shirt:'#6b4fa8',
   tags:['eniac','sem manual','apagadas'],
   src:'https://eniacprogrammers.org/', srcNm:'ENIAC Programmers Project',
   body:['Jean Jennings Bartik, Frances Bilas Spence, Kay McNulty, Betty Holberton, Marlyn Wescoff e Ruth Lichterman programaram o ENIAC sem manual, sem linguagem de programação e sem exemplo anterior. O trabalho era físico: reconfigurar cabos e ajustar centenas de chaves.',
@@ -257,7 +274,7 @@ const P = [
         'Foi ativa em programas de recrutamento e mentoria da agência e falava abertamente sobre as barreiras que encontrou. Costumava dizer que, quando alguém tinha atitude preconceituosa, o problema era dessa pessoa, e ela seguia trabalhando.']},
 
 { era:'nasa', yr:'1956', nm:'Gladys West', role:'Matemática naval · modelo geodésico do GPS',
-  tpl:'updo', hair:'blk', skin:'d', shirt:'#3f6fa8',
+  tpl:'bangs', hair:'blk', skin:'d', shirt:'#3f6fa8',
   tags:['gps','geodésia','seasat'],
   src:'https://www.britannica.com/biography/Gladys-West', srcNm:'Britannica',
   body:['Contratada em 1956 pelo Naval Proving Ground em Dahlgren, foi a segunda mulher negra admitida na base, uma de apenas quatro funcionários negros na época.',
@@ -265,7 +282,7 @@ const P = [
         'Aposentou-se em 1998 e só foi formalmente reconhecida em 2018, quando entrou no Hall da Fama de Pioneiros do Espaço e Míssil da Força Aérea. Perguntada se usava GPS, respondeu que preferia mapas. Morreu em 17 de janeiro de 2026, aos 95 anos.']},
 
 { era:'nasa', yr:'1960', nm:'Melba Roy Mouton', role:'Chefe de programação · satélites Echo',
-  tpl:'updo', hair:'blk', skin:'d', shirt:'#2f7d8a',
+  tpl:'pixie', hair:'blk', skin:'d', shirt:'#2f7d8a',
   tags:['echo','rastreamento','goddard'],
   src:'https://www.nasa.gov/image-article/melba-roy-computer-nasa-goddard/', srcNm:'NASA',
   body:['Liderou no início dos anos 1960 o grupo de matemáticas que calculava e verificava as órbitas dos satélites Echo 1 e 2, os primeiros satélites de comunicação passiva, que refletiam sinais de rádio de volta para a Terra.',
@@ -281,7 +298,7 @@ const P = [
         'Também contribuiu para os cálculos de encontro orbital do programa Apollo. Recebeu a Medalha Presidencial da Liberdade em 2015 e teve uma instalação de pesquisa da NASA batizada com seu nome em 2016. Morreu em 2020, aos 101 anos.']},
 
 { era:'nasa', yr:'1958', nm:'Mary Jackson', role:'Primeira engenheira negra da NASA',
-  tpl:'updo', hair:'blk', skin:'d', shirt:'#b5542e',
+  tpl:'curly', hair:'blk', skin:'d', shirt:'#b5542e',
   tags:['túnel de vento','engenharia','equidade'],
   src:'https://www.nasa.gov/people/mary-w-jackson-biography/', srcNm:'NASA',
   body:['Para se tornar engenheira, precisou de autorização judicial em Hampton, Virgínia, porque as disciplinas exigidas eram oferecidas em escola segregada onde ela não podia entrar. Conseguiu a autorização, estudou e virou engenheira em 1958.',
@@ -305,7 +322,7 @@ const P = [
         'Trabalhou em Cambridge dos anos 1970 aos 2000 e insistia publicamente que mais mulheres deveriam entrar em computação. A British Computer Society criou um prêmio com o nome dela depois de sua morte, em 2007.']},
 
 { era:'nasa', yr:'1978', nm:'Yvonne Brill', role:'Engenheira aeroespacial · propulsão de satélites',
-  tpl:'short', hair:'brn', skin:'l', shirt:'#8a6f2e',
+  tpl:'pixie', hair:'brn', skin:'l', shirt:'#8a6f2e',
   tags:['propulsão','órbita','patente'],
   src:'https://www.invent.org/inductees/yvonne-brill', srcNm:'National Inventors Hall of Fame',
   body:['Inventou o sistema de propulsão elétrica por hidrazina que resolve o problema de manter satélites estáveis em órbita geoestacionária gastando menos combustível. O design se tornou padrão da indústria de satélites.',
@@ -314,7 +331,7 @@ const P = [
 
 /* ═══ ERA DIGITAL ═══ */
 { era:'digital', yr:'1980', nm:'Adele Goldberg', role:'Xerox PARC · Smalltalk e interface gráfica',
-  tpl:'long', hair:'brn', skin:'l', shirt:'#5d8a2e',
+  tpl:'bangs', hair:'brn', skin:'l', shirt:'#5d8a2e',
   tags:['smalltalk','gui','objetos'],
   src:'https://computerhistory.org/profile/adele-goldberg/', srcNm:'Computer History Museum',
   body:['Co-desenvolveu no Xerox PARC a linguagem Smalltalk, que consolidou o paradigma de orientação a objetos e influenciou diretamente Java, Ruby, Python e praticamente tudo que veio depois.',
@@ -322,7 +339,7 @@ const P = [
         'O Macintosh de 1984 e o Windows de 1985 descendem daquela tarde. Ela presidiu a ACM SIGPLAN e depois fundou empresas próprias de software educacional.']},
 
 { era:'digital', yr:'1985', nm:'Radia Perlman', role:'Engenheira de redes · Spanning Tree Protocol',
-  tpl:'long', hair:'brn', skin:'l', shirt:'#2e8a6f',
+  tpl:'braid', hair:'brn', skin:'l', shirt:'#2e8a6f',
   tags:['stp','roteamento','ethernet'],
   src:'https://www.internethalloffame.org/inductee/radia-perlman/', srcNm:'Internet Hall of Fame',
   body:['Criou em 1985, na Digital Equipment Corporation, o Spanning Tree Protocol: um algoritmo que resolve como pacotes atravessam redes com caminhos redundantes sem entrar em loop infinito. Sem ele, uma rede em anel se afoga no próprio tráfego.',
@@ -338,7 +355,7 @@ const P = [
         'Argumentava que o problema não era falta de interesse das mulheres, mas a estrutura da própria indústria. Morreu em 2003, aos 54 anos.']},
 
 { era:'digital', yr:'2005', nm:'Limor Fried', role:'Fundadora da Adafruit · hardware aberto',
-  tpl:'long', hair:'blk', skin:'l', shirt:'#2e6f8a',
+  tpl:'curly', hair:'blk', skin:'l', shirt:'#2e6f8a',
   tags:['open hardware','maker','adafruit'],
   src:'https://www.adafruit.com/about', srcNm:'Adafruit',
   body:['Fundou a Adafruit Industries sozinha em 2005, montando e vendendo kits de eletrônica ainda no MIT e depois de um apartamento em Nova York. Nunca captou investimento externo.',
@@ -363,7 +380,7 @@ const P = [
         'Fundou em 2021 o DAIR, instituto de pesquisa em IA independente de financiamento corporativo, com foco em comunidades afetadas pela tecnologia.']},
 
 { era:'modern', yr:'2018', nm:'Joy Buolamwini', role:'Algorithmic Justice League · auditoria de IA',
-  tpl:'afro', hair:'blk', skin:'dd', shirt:'#6f2e8a',
+  tpl:'curly', hair:'blk', skin:'dd', shirt:'#6f2e8a',
   tags:['gender shades','auditoria','ajl'],
   src:'https://www.ajl.org/about', srcNm:'Algorithmic Justice League',
   body:['Descobriu durante o mestrado no MIT que softwares de detecção facial não reconheciam seu rosto até que ela vestisse uma máscara branca. Transformou o incidente em pesquisa.',
@@ -371,7 +388,7 @@ const P = [
         'Fundou a Algorithmic Justice League e testemunhou no Congresso americano. Sua atuação contribuiu para moratórias municipais no uso de reconhecimento facial por polícia em cidades dos Estados Unidos.']},
 
 { era:'modern', yr:'2019', nm:'Katie Bouman', role:'Caltech · imagem do buraco negro',
-  tpl:'long', hair:'brn', skin:'l', shirt:'#2e4a8a',
+  tpl:'braid', hair:'brn', skin:'l', shirt:'#2e4a8a',
   tags:['chirp','m87','event horizon'],
   src:'https://www.caltech.edu/about/news/seeing-farther-and-deeper-interview-katie-bouman', srcNm:'Caltech',
   body:['Liderou, durante o doutorado no MIT, o desenvolvimento do algoritmo CHIRP, que reconstrói uma imagem coerente a partir de dados esparsos e ruidosos captados por radiotelescópios espalhados pelo planeta.',
@@ -380,7 +397,7 @@ const P = [
 
 /* ═══ AGORA ═══ */
 { era:'now', yr:'2025', nm:'Cordelia Schmid', role:'Inria · ACM Athena Lecturer 2025-2026',
-  tpl:'short', hair:'brn', skin:'l', shirt:'#c94a6f',
+  tpl:'pixie', hair:'brn', skin:'l', shirt:'#c94a6f',
   tags:['visão computacional','athena','inria'],
   src:'https://awards.acm.org/about/2025-athena', srcNm:'ACM Awards',
   body:['Nomeada em abril de 2025 como ACM Athena Lecturer do ciclo 2025-2026, prêmio anual que reconhece uma cientista da computação por contribuições fundamentais à área.',
@@ -388,7 +405,7 @@ const P = [
         'É a única pessoa a receber três vezes o prêmio Longuet-Higgins, dado a artigos de visão computacional cujo impacto se sustentou ao longo de uma década. O Athena inclui honorário custeado pela Two Sigma.']},
 
 { era:'now', yr:'2025', nm:'Shin Hwei Tan', role:'Concordia · ACM-W Rising Star 2025',
-  tpl:'long', hair:'blk', skin:'m', shirt:'#2e8a8a',
+  tpl:'bangs', hair:'blk', skin:'m', shirt:'#2e8a8a',
   tags:['reparo de código','rising star','open source'],
   src:'https://women.acm.org/rising-star-award/', srcNm:'ACM-W',
   body:['Recebeu em 2025 o ACM-W Rising Star Award, que reconhece pesquisadoras em início de carreira cujo trabalho já teve impacto mensurável na computação.',
@@ -404,7 +421,7 @@ const P = [
         'Também é uma das autoras fundadoras da literatura sobre justiça algorítmica, ajudando a estabelecer que "justo" precisa ser definido formalmente antes de ser exigido de um sistema. E, em 1993, propôs o proof of work, mecanismo criado contra spam que décadas depois viraria a base do Bitcoin.']},
 
 { era:'now', yr:'2026', nm:'Monika Henzinger', role:'ISTA Áustria · ACM Athena Lecturer 2026-2027',
-  tpl:'long', hair:'brn', skin:'l', shirt:'#4a2e8a',
+  tpl:'curly', hair:'brn', skin:'l', shirt:'#4a2e8a',
   tags:['grafos dinâmicos','algoritmos','athena'],
   src:'https://awards.acm.org/athena', srcNm:'ACM Awards',
   body:['Anunciada como ACM Athena Lecturer do ciclo 2026-2027, reconhecida por contribuições a algoritmos de grafos dinâmicos e algoritmos para a web, além de trabalho consistente de mentoria nessas comunidades.',
@@ -412,7 +429,7 @@ const P = [
         'Foi diretora de pesquisa no Google no início dos anos 2000, período em que a busca ainda estava definindo como indexar a web em escala.']},
 
 { era:'now', yr:'2026', nm:'Katerina Spranger', role:'Oxford Heartbeat · Prémio Europeu 2026',
-  tpl:'long', hair:'brn', skin:'l', shirt:'#c9642e',
+  tpl:'braid', hair:'brn', skin:'l', shirt:'#c9642e',
   tags:['healthtech','ia médica','fundadora'],
   src:'https://eic.ec.europa.eu/news/european-prize-women-innovators-2026-winners-announced-2026-06-04_en', srcNm:'Comissão Europeia',
   body:['Venceu em 2026 a categoria principal do Prémio Europeu para Mulheres Inovadoras, concedido pela Comissão Europeia na cúpula do Conselho Europeu de Inovação em Bruxelas, com prêmio de cem mil euros.',
