@@ -157,7 +157,8 @@ html,body{height:100vh}
   #touchBar button{position:absolute;pointer-events:auto;flex:none;
     width:56px;height:56px;border-radius:50%;padding:0;font-size:.34rem;line-height:1.15}
   #touchBar #btnDuck{left:calc(18px + env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom))}
-  #touchBar #btnSkill{right:calc(96px + env(safe-area-inset-right));bottom:calc(24px + env(safe-area-inset-bottom))}
+  #touchBar #btnSkill{right:calc(34px + env(safe-area-inset-right));bottom:calc(2px + env(safe-area-inset-bottom));
+    width:42px;height:42px;font-size:.28rem}
   #touchBar #btnJump{right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));
     width:72px;height:72px;font-size:.4rem}
   #endBar{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));
@@ -190,7 +191,7 @@ html,body{height:100vh}
   <div id="touchBar">
     <button id="btnDuck">↓ ABAIXAR</button>
     <button id="btnJump">↑ PULAR</button>
-    <button id="btnSkill">★ ESPECIAL</button>
+    <button id="btnSkill">ESPECIAL</button>
   </div>
   <div id="endBar">
     <input id="pName" maxlength="3" placeholder="AAA" style="width:70px;text-align:center;letter-spacing:.3em">
