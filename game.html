@@ -94,6 +94,11 @@ html,body{height:100vh}
 #rotatePrompt p{font-size:.75rem;line-height:1.8;color:var(--text)}
 #rotatePrompt p.sub{font-size:.6rem;color:var(--dim)}
 @keyframes rotHint{0%,100%{transform:rotate(0deg)}50%{transform:rotate(90deg)}}
+#lbEntryBtn{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));
+  right:calc(10px + env(safe-area-inset-right));z-index:6;font-family:inherit;font-size:.5rem;
+  background:var(--panel);border:2px solid var(--gold);color:var(--text);padding:9px 12px;cursor:pointer}
+#lbEntryBtn:active{background:var(--line)}
+@media (pointer:coarse){ #lbEntryBtn{font-size:.42rem;padding:8px 10px} }
 #endBar{display:none;gap:8px;width:var(--game-w);justify-content:center;flex-wrap:wrap}
 #endBar input{font-family:inherit;font-size:.55rem;background:var(--panel);
   border:2px solid var(--line);color:var(--text);padding:12px;width:220px;text-transform:uppercase}
@@ -149,9 +154,13 @@ html,body{height:100vh}
 <div id="wrap">
   <div id="topbar">
     <span class="logo">SHE RUNS</span>
-    <a href="index.html">← TIMELINE</a>
+    <div style="display:flex;gap:8px">
+      <a href="javascript:void(0)" id="lbTopLink">🏆 RANKING</a>
+      <a href="index.html">← TIMELINE</a>
+    </div>
   </div>
   <canvas id="gameCanvas" class="rainbowFrameThin" width="1080" height="608"></canvas>
+  <button id="lbEntryBtn">🏆 VER RANKING</button>
   <div id="touchBar">
     <button id="btnDuck">↓ ABAIXAR</button>
     <button id="btnJump">↑ PULAR</button>
@@ -1230,7 +1239,7 @@ function drawSelect(){
   }
   cx.font='6px "Press Start 2P"'; cx.fillStyle=C.dim;
   centerText(['← →  TROCAR PERSONAGEM'],by+bh+22,C.dim,6);
-  centerText(['ESPAÇO pular · ↓ abaixar · ←→ andar · Z especial'],by+bh+42,C.dim,6);
+  centerText(['ESPAÇO pular · ↓ abaixar · ←→ andar · Z especial · L ranking'],by+bh+42,C.dim,6);
   cx.globalAlpha=.5+Math.sin(t*.15)*.5;
   centerText([isCreateSlot?'— TOQUE PRA CRIAR —':'— TOQUE PRA COMEÇAR —'],by+bh+66,isCreateSlot?C.good:C.gold,8);
   cx.globalAlpha=1;
@@ -1294,6 +1303,8 @@ async function openLeaderboard(){
   }
 }
 document.getElementById('lbBtn').addEventListener('click', openLeaderboard);
+document.getElementById('lbTopLink').addEventListener('click', openLeaderboard);
+document.getElementById('lbEntryBtn').addEventListener('click', openLeaderboard);
 function drawLeaderboard(){
   drawBackground(.5,t);
   rainbowText(['HALL DA FAMA'],48,14);
@@ -1324,12 +1335,16 @@ function drawLeaderboard(){
 }
 
 /* ══════════ LOOP ══════════ */
+const topbarEl=document.getElementById('topbar'), lbEntryBtn=document.getElementById('lbEntryBtn');
 function frame(){
   t++;
   if(shake>0) shake--;
   if(flashRed>0) flashRed--;
   cx.save();
   if(shake>0) cx.translate((Math.random()-.5)*shake*2,(Math.random()-.5)*shake*2);
+
+  // botão flutuante de ranking: só aparece quando a topbar (que já tem o link) some — telas curtas de celular
+  lbEntryBtn.style.display=(state==='SELECT' && getComputedStyle(topbarEl).display==='none')?'block':'none';
 
   if(state==='SELECT') drawSelect();
   else if(state==='CREATE') drawCreate();
