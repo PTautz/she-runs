@@ -266,15 +266,15 @@ function drawGrid(grid, pal, x, y, s){
 /* ── CORPO PADRÃO das personagens: 12 colunas × 18 linhas ──
    cabeça 8 · tronco 7 · pernas 3 — a mesma proporção para todas  */
 const HEADS = {
-  /* Ada: coque + faixa/tiara (G) no meio do cabelo + bochecha rosada (K) perto do queixo */
-  updo:[ "....HH......","...HHHHHH...","..GGGGGGGG..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSMMMSSH.","..HSKSSSKH.." ],
-  short:["............","...HHHHHH...","..HHHHHHHH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSSH.","...SKSSSKS.." ],
-  long: ["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.",".HHSSMMMSSH.",".HHSKSSSKH.." ],
-  bun:  [".....HH.....","....HHHH....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.","..HSEESEESH.","..HSSMMMSSH.","...SKSSSKS.." ],
+  /* Ada: coque + faixa/tiara (G) no meio do cabelo + bochecha (K) ao lado da boca, não embaixo */
+  updo:[ "....HH......","...HHHHHH...","..GGGGGGGG..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSKMMMKSH.","..HSSSSSSH.." ],
+  short:["............","...HHHHHH...","..HHHHHHHH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSKMMMKSH.","...SSSSSSS.." ],
+  long: ["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.",".HHSKMMMKSH.",".HHSSSSSSH.." ],
+  bun:  [".....HH.....","....HHHH....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.","..HSEESEESH.","..HSKMMMKSH.","...SSSSSSS.." ],
   /* Grace: boné de fita naval — topo C, aba D, cabelo curto aparecendo embaixo + bochecha */
-  cap:  [ "..CCCCCCCC..",".CCCCCCCCCC.",".DDDDDDDDDD.","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSSH.","...SKSSSKS.." ],
+  cap:  [ "..CCCCCCCC..",".CCCCCCCCCC.",".DDDDDDDDDD.","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSKMMMKSH.","...SSSSSSS.." ],
   /* Katherine: black-power afro volumoso + óculos de aro claro (G, acento) + bochecha — contraste alto contra pele/cabelo escuros */
-  afro: [ "..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHGEESEEGHH","HHHSSSSSSHHH",".HHSSMMMSSH.","..HSKSSSKH.." ],
+  afro: [ "..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHGEESEEGHH","HHHSSSSSSHHH",".HHSKMMMKSH.","..HSSSSSSH.." ],
 };
 /* tronco com ombros, braços (S = pele) e detalhe da roupa (G) */
 const TORSOS = {
@@ -299,7 +299,55 @@ function heroPal(ch){
   return { H:HAIR[ch.hair], S:SKIN[ch.skin], E:'#1a1526', M:'#e0a597', K:'#ff8fa3',
            C:ch.color1, D:ch.color2, G:ch.accent, P:ch.color2, B:'#161225' };
 }
-function drawHero(ch,x,y,duck,legFrame,onGround){
+
+/* ══════════ SPRITES EM PNG — arquitetura ══════════
+   Cada personagem do elenco fixo pode ter uma pasta de sprites em
+   assets/characters/<pasta>/{idle,run_01,run_02,run_03,jump,crouch}.png
+   (fundo transparente, ~32x48 ou 48x64px — a resolução da imagem não
+   importa pro jogo, ela sempre é desenhada no tamanho HERO_W x HERO_H).
+
+   Se os arquivos ainda não existirem (ou falharem ao carregar), a
+   personagem cai automaticamente no desenho procedural antigo — dá pra
+   integrar uma personagem PNG de cada vez sem quebrar as outras nem
+   mexer em mais nada. Personagens criadas no editor (id 'custom') nunca
+   têm pasta própria e sempre usam o desenho procedural.
+
+   `ch.id` é o identificador interno (usado no leaderboard etc.) — o
+   nome da pasta de assets pode ser diferente dele; ver SPRITE_FOLDER. */
+const SPRITE_FRAMES = ['idle','run_01','run_02','run_03','jump','crouch'];
+const SPRITE_FOLDER = { ada:'ada', grace:'grace', katherine:'katherine', hamilton:'margaret' };
+const spriteCache = {}; // { [charId]: { images:{frame:Image}, loaded:{frame:bool} } }
+
+function loadCharacterSprites(charId){
+  const folder = SPRITE_FOLDER[charId];
+  if(!folder) return null;               // sem pasta conhecida (ex.: personagem custom) — não tenta carregar
+  if(spriteCache[charId]) return spriteCache[charId];
+  const entry = { images:{}, loaded:{} };
+  SPRITE_FRAMES.forEach(frame=>{
+    const img = new Image();
+    entry.loaded[frame] = false;
+    img.onload = ()=>{ entry.loaded[frame] = true; };
+    img.onerror = ()=>{ entry.loaded[frame] = false; };
+    img.src = `assets/characters/${folder}/${frame}.png`;
+    entry.images[frame] = img;
+  });
+  spriteCache[charId] = entry;
+  return entry;
+}
+function hasSpriteFrame(charId, frame){
+  const e = spriteCache[charId];
+  if(!e) return false;
+  const img = e.images[frame];
+  return !!(e.loaded[frame] && img.complete && img.naturalWidth>0);
+}
+function heroFrameName(duck, legFrame, onGround){
+  if(duck) return 'crouch';
+  if(onGround===false) return 'jump';
+  return 'run_0'+((legFrame%3)+1);
+}
+
+/* desenho antigo: personagem inteira montada por grade de texto (fallback) */
+function drawHeroProcedural(ch,x,y,duck,legFrame,onGround){
   cx.save();
   if(flashRed>0) cx.globalAlpha=.55;
   if(duck){
@@ -311,6 +359,22 @@ function drawHero(ch,x,y,duck,legFrame,onGround){
     drawGrid(grid, heroPal(ch), x-HERO_W/2, y-HERO_H, HERO_S);
   }
   cx.restore();
+}
+
+/* ponto de entrada único, chamado em todo o jogo — decide sprite PNG vs. procedural */
+function drawHero(ch,x,y,duck,legFrame,onGround){
+  loadCharacterSprites(ch.id);
+  const frame = heroFrameName(duck, legFrame, onGround);
+  if(hasSpriteFrame(ch.id, frame)){
+    const w=HERO_W, h=duck?HERO_H_DUCK:HERO_H;
+    cx.save();
+    if(flashRed>0) cx.globalAlpha=.55;
+    cx.imageSmoothingEnabled=false;
+    cx.drawImage(spriteCache[ch.id].images[frame], x-w/2, y-h, w, h);
+    cx.restore();
+  } else {
+    drawHeroProcedural(ch,x,y,duck,legFrame,onGround);
+  }
 }
 
 /* ── CHEFES: 16 col × 22 linhas — cabeça 7 · tronco 8 · pernas 4 · pés 3 ── */
