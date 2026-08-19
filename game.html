@@ -588,11 +588,12 @@ const player={
 
 let obstacles=[], particles=[], floatTexts=[], spawnTimer=110;
 /* ritmo progressivo: começa devagar e espaçado, aperta perto do chefe */
-const RUN_CFG={speedBase:2.3, speedMax:3.3, gapBase:[130,185], gapTight:[80,120], progRate:0.0125};
+const RUN_CFG={speedBase:2.3, speedMax:3.5, gapBase:[130,185], gapTight:[72,108], progRate:0.0125};
 
-function spawnObstacle(){
+function spawnObstacle(prog01){
+  prog01=prog01||0;
   const pool=hero.obstacles;
-  const weights=pool.map(o=>o.need==='collect'?0.9:1.5);
+  const weights=pool.map(o=>o.need==='collect'?0.9:1.5+prog01*0.8);
   const total=weights.reduce((a,b)=>a+b,0);
   let roll=Math.random()*total, def=pool[0];
   for(let i=0;i<pool.length;i++){ roll-=weights[i]; if(roll<=0){ def=pool[i]; break; } }
@@ -602,6 +603,17 @@ function spawnObstacle(){
   else if(def.need==='collect') y=GROUND_Y-70-Math.random()*60;
   else y=GROUND_Y-def.h;
   obstacles.push({def, x:W+40, y, w:def.w, h:def.h, bobPh:Math.random()*6.28});
+
+  // combo: a partir da metade da corrida, às vezes um segundo obstáculo mortal vem logo atrás
+  const comboChance=Math.max(0,(prog01-0.45)*0.55);
+  if(def.deadly && Math.random()<comboChance){
+    const deadlyPool=pool.filter(o=>o.deadly);
+    let def2=deadlyPool[Math.floor(Math.random()*deadlyPool.length)], tries=0;
+    while(def2===def && tries<5){ def2=deadlyPool[Math.floor(Math.random()*deadlyPool.length)]; tries++; }
+    const y2=def2.need==='duck'?GROUND_Y-60:GROUND_Y-def2.h;
+    const gap2=100+Math.random()*40;
+    obstacles.push({def:def2, x:W+40+gap2, y:y2, w:def2.w, h:def2.h, bobPh:Math.random()*6.28});
+  }
 }
 
 /* ══════════ INPUT ══════════ */
@@ -781,7 +793,7 @@ function updateRun(){
 
   spawnTimer--;
   if(spawnTimer<=0){
-    spawnObstacle();
+    spawnObstacle(prog01);
     const gLo=RUN_CFG.gapBase[0]-(RUN_CFG.gapBase[0]-RUN_CFG.gapTight[0])*prog01;
     const gHi=RUN_CFG.gapBase[1]-(RUN_CFG.gapBase[1]-RUN_CFG.gapTight[1])*prog01;
     spawnTimer=gLo+Math.random()*(gHi-gLo);
