@@ -174,7 +174,7 @@ const TPL = {
   pixie:["............","..HHHHHHHH..",".HHDHHHHDHH.",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.","..HSSSSSSSH.","..HSKSSSKSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
   /* variantes com acessório de identidade — só para quem tem o traço marcante
      na história real (faixa da Ada, boné da Grace, óculos da Katherine) */
-  updo_pin:["....HH......","...HHHH.....","..HHHHHHHH..",".GGGGGGGGGG.",".HHSSSSSSHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSKSSSKSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+  updo_pin:["....HH......","...HHHH.....","..HHHHHHHH..",".GGGGGGGGGG.","HHHSSSSSSHHH","HHHSSSSSSHHH","FHHSEESEESH.","FFHSSSSSSSH.","FHHSKSSSKSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
   cap:[".CCCCCCCC...","CCCCCCCCCCCC","CCCCCCCCCCCC","..HHHHHHHH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSKSSSKS..","...SSSSSSS..","....SSSSS...","....SSSS....","..CCCCCCCC..",".CCCCCCCCCC."],
   afro_glasses:["..HHHHHHHH..",".HHDHHHHDHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHSSSSSSHHH","HHHCEESEECHH","HHHSSSSSSSHH",".HHSKSSSKSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
 };
@@ -199,9 +199,9 @@ function portrait(p, px){
   const g = TPL[p.tpl];
   const skin = SKIN[p.skin], hair = HAIR[p.hair];
   /* sem boca, só bochecha — derivada do próprio tom de pele, funciona em qualquer pele.
-     G é o enfeite dourado no topo do coque da Ada. */
+     G é a faixa dourada e F a florzinha branca no cabelo da Ada. */
   const map = { H:hair, D:mixHex(hair,'#ffffff',.22), S:skin, E:eyeColorFor(p.nm),
-                K:mixHex(skin,'#ff6f91',.34), C:p.shirt, G:'#f7c343' };
+                K:mixHex(skin,'#ff6f91',.34), C:p.shirt, G:'#f7c343', F:'#fff4e0' };
   let r = '';
   g.forEach((row,y)=>{
     for(let x=0;x<row.length;x++){

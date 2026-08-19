@@ -291,6 +291,10 @@ function heroPal(ch){
    nome da pasta de assets pode ser diferente dele; ver SPRITE_FOLDER. */
 const SPRITE_FRAMES = ['idle','run_01','run_02','run_03','jump','crouch'];
 const SPRITE_FOLDER = { ada:'ada', grace:'grace', katherine:'katherine', hamilton:'margaret' };
+/* sobe esse número toda vez que os arquivos de assets/characters/ mudarem —
+   evita que o navegador (ou o cache do GitHub Pages) sirva uma versão antiga
+   ou um 404 antigo em cache pra quem já visitou o jogo antes */
+const SPRITE_VERSION = 'v2';
 const spriteCache = {}; // { [charId]: { images:{frame:Image}, loaded:{frame:bool} } }
 
 function loadCharacterSprites(charId){
@@ -303,7 +307,7 @@ function loadCharacterSprites(charId){
     entry.loaded[frame] = false;
     img.onload = ()=>{ entry.loaded[frame] = true; };
     img.onerror = ()=>{ entry.loaded[frame] = false; };
-    img.src = `assets/characters/${folder}/${frame}.png`;
+    img.src = `assets/characters/${folder}/${frame}.png?${SPRITE_VERSION}`;
     entry.images[frame] = img;
   });
   spriteCache[charId] = entry;
