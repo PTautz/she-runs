@@ -113,6 +113,31 @@ html,body{height:100vh}
 #createBar button{font-family:inherit;font-size:.55rem;background:var(--bg);
   border:2px solid var(--good);color:var(--text);padding:10px 16px;cursor:pointer}
 #createBar button.secondary{border-color:var(--line)}
+
+/* touch: canvas preenche a tela de verdade (encaixado pela proporção, sem
+   fórmula de largura fixa), controles flutuam nos cantos como na maioria dos
+   jogos de celular, e as caixas de fim de jogo/criação viram um painel
+   flutuante sempre alcançável — nunca empurrado pra fora da tela visível. */
+@media (pointer:coarse){
+  #wrap{padding:0;gap:0}
+  #topbar{position:fixed;top:0;left:0;right:0;z-index:5;width:100%;
+    padding:6px calc(8px + env(safe-area-inset-right)) 4px calc(8px + env(safe-area-inset-left));
+    background:linear-gradient(rgba(11,10,20,.8),transparent)}
+  #gameCanvas{max-width:100vw;max-height:100vh;width:auto;height:auto;margin:auto}
+  @supports (height:100svh){ #gameCanvas{max-height:100svh} }
+  #touchBar{position:fixed;inset:0;display:flex;pointer-events:none;gap:0;width:100%;max-width:none;padding:0}
+  #touchBar button{position:absolute;pointer-events:auto;flex:none;
+    width:60px;height:60px;border-radius:50%;padding:0;font-size:.36rem;line-height:1.15}
+  #touchBar #btnDuck{left:calc(18px + env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom))}
+  #touchBar #btnSkill{right:calc(98px + env(safe-area-inset-right));bottom:calc(20px + env(safe-area-inset-bottom));
+    width:50px;height:50px;font-size:.32rem}
+  #touchBar #btnJump{right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));
+    width:74px;height:74px;font-size:.4rem}
+  #endBar,#createBar{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));
+    transform:translateX(-50%);width:calc(100vw - 20px);max-width:420px;max-height:min(70vh,70svh);
+    overflow-y:auto;z-index:10}
+  #createBar{top:calc(10px + env(safe-area-inset-top));bottom:auto;max-height:min(94vh,94svh)}
+}
 </style>
 </head>
 <body>
