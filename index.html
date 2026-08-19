@@ -154,41 +154,53 @@ const ERAS = [
     ctx:'O presente é desigual e está documentado. Em março de 2026, o Turing Award foi para dois homens, mantendo o placar em 3 mulheres entre mais de 70 laureados desde 1966. No mesmo período, Cynthia Dwork levou o Prêmio Japão, o Athena Lecturer premiou duas cientistas em ciclos consecutivos e o prêmio europeu de inovação foi para uma fundadora de healthtech.' },
 ];
 
+/* Todos os penteados compartilham exatamente o mesmo bloco de rosto — olhos
+   (SEESEES) sempre nas colunas 3-9, mesmo tamanho, mesma boca e bochechas.
+   A diferenciação vem só do contorno do cabelo, do detalhe (D = mecha mais
+   clara), dos acessórios e da cor da roupa. */
 const TPL = {
-  updo:["....HH......","...HHHH.....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSSMMMSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
-  long:["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.",".HHSSMMMSSH.",".HHSSSSSSSH.",".HH.SSSSS.H.",".HH..SSS..H.","..CCCCCCCC..",".CCCCCCCCCC."],
-  afro:["..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHSSSSSSHHH","HHHSEESEESHH","HHHSSSSSSSHH",".HHSSMMMSSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
-  short:["............","...HHHHHH...","..HHHHHHHH..","..HSSSSSSH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSS..","...SSSSSSS..","....SSSSS...","....SSSS....","..CCCCCCCC..",".CCCCCCCCCC."],
-  bun:[".....HH.....","....HHHH....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
-  /* franjinha reta cobrindo a testa — quebra a monotonia do 'long' */
-  bangs:["..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHSEESEESHH","HHHSSSSSSSHH",".HHSSMMMSSH.",".HHSSSSSSSH.",".HH.SSSSS.H.",".HH..SSS..H.","..CCCCCCCC..",".CCCCCCCCCC."],
+  updo:["....HH......","...HDDH.....","..HHHHHHHH..",".HHHHDDHHHH.",".HHSSSSSSHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSKMMMKSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+  long:["...HHHHHH...","..HHDDDDHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.",".HHSKMMMKSH.",".HHSSSSSSSH.",".HH.SSSSS.H.",".HH..SSS..H.","..CCCCCCCC..",".CCCCCCCCCC."],
+  afro:["..HHHHHHHH..",".HHDHHHHDHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHSSSSSSHHH","HHHSEESEESHH","HHHSSSSSSSHH",".HHSKMMMKSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+  short:["............","...HHHHHH...","..HHDDDDHH..","..HSSSSSSH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSKMMMKS..","...SSSSSSS..","....SSSSS...","....SSSS....","..CCCCCCCC..",".CCCCCCCCCC."],
+  bun:[".....HH.....","....HDDH....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSKMMMKSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+  /* franjinha reta cobrindo a testa */
+  bangs:["..HHHHHHHH..",".HHHHHHHHHH.","HHDDHHHHDDHH","HHHSSSSSSHHH","HHHSSSSSSHHH","HHHSEESEESHH","HHHSSSSSSSHH",".HHSKMMMKSH.",".HHSSSSSSSH.",".HH.SSSSS.H.",".HH..SSS..H.","..CCCCCCCC..",".CCCCCCCCCC."],
   /* trança lateral caindo sobre o ombro */
-  braid:["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSSMMMSSH.","..HSSSSSSSH.",".H.SSSSSSS..",".H..SSSSS...",".HCCCCCCCC..",".HCCCCCCCCC."],
-  /* cachos volumosos, mais compactos e arredondados que o afro */
-  curly:[".H.HH.HH.H..","HHHHHHHHHHH.",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSSMMMSSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
-  /* corte curto e assimétrico, moderno */
-  pixie:["............","..HHHHHHH...",".HHHHHHHHH..",".HHSSSSSSH..",".HSSSSSSSH..",".HSEESEESH..",".HSSSSSSSH..","..HSSMMMSH..","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+  braid:["...HHHHHH...","..HHDDDDHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSKMMMKSH.","..HSSSSSSSH.",".HD.SSSSS...",".DH..SSS....",".HDCCCCCCC..",".DHCCCCCCCC."],
+  /* cachos volumosos e arredondados */
+  curly:["..HHHHHHHH..",".HDHHHHHHDH.","HHHHHHHHHHHH",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSKMMMKSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+  /* corte bem curto, colado à cabeça */
+  pixie:["............","..HHHHHHHH..",".HHDHHHHDHH.",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.","..HSSSSSSSH.","..HSKMMMKSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
   /* variantes com acessório de identidade — só para quem tem o traço marcante
-     na história real (laço da Ada, boné da Grace, óculos da Katherine) */
-  updo_pin:["....HH......","...HHHHC....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSSMMMSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
-  cap:[".CCCCCCCC...","CCCCCCCCCCCC","CCCCCCCCCCCC","..HSSSSSSH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSS..","...SSSSSSS..","....SSSS....","..CCCCCCCC..",".CCCCCCCCCC."],
-  afro_glasses:["..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHSSSSSSHHH","HHHCEESEECHH","HHHSSSSSSSHH",".HHSSMMMSSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+     na história real (faixa da Ada, boné da Grace, óculos da Katherine) */
+  updo_pin:["....HH......","...HDDH.....","..HHHHHHHH..",".HHHHCCHHHH.",".HHSSSSSSHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSKMMMKSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+  cap:[".CCCCCCCC...","CCCCCCCCCCCC","CCCCCCCCCCCC","..HHHHHHHH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSKMMMKS..","...SSSSSSS..","....SSSSS...","....SSSS....","..CCCCCCCC..",".CCCCCCCCCC."],
+  afro_glasses:["..HHHHHHHH..",".HHDHHHHDHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHSSSSSSHHH","HHHCEESEECHH","HHHSSSSSSSHH",".HHSKMMMKSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
 };
 const SKIN = { l:'#f2c9a8', m:'#c98b5e', d:'#8a5533', dd:'#5f381f' };
 const HAIR = { blk:'#241c30', brn:'#5d3a24', gry:'#b9b4c9', wht:'#e4e0ee', red:'#a8442a' };
-/* olhos maiores ganham cor própria por pessoa — paleta escura e discreta,
-   variando de forma estável (mesmo hash sempre dá a mesma cor pra mesma pessoa) */
+/* cor dos olhos varia por pessoa — paleta escura e discreta, derivada do nome
+   de forma estável (mesma pessoa sempre com a mesma cor) */
 const EYE_COLORS = ['#1a1526','#2a1f14','#142a1f','#14202a','#2a1420','#241f0a'];
 function eyeColorFor(name){
   let h = 0;
   for(let i=0;i<name.length;i++) h = (h*31 + name.charCodeAt(i)) >>> 0;
   return EYE_COLORS[h % EYE_COLORS.length];
 }
+function mixHex(a, b, amt){
+  const A = parseInt(a.slice(1),16), B = parseInt(b.slice(1),16);
+  const ch = s => [ (A>>s)&255, (B>>s)&255 ];
+  const m = s => { const [x,y]=ch(s); return Math.round(x + (y-x)*amt); };
+  return '#' + ((1<<24) | (m(16)<<16) | (m(8)<<8) | m(0)).toString(16).slice(1);
+}
 
 function portrait(p, px){
   const g = TPL[p.tpl];
-  /* estilo minimalista: sem boca visível (M vira pele), olhos grandes com cor própria */
-  const map = { H:HAIR[p.hair], S:SKIN[p.skin], E:eyeColorFor(p.nm), M:SKIN[p.skin], C:p.shirt };
+  const skin = SKIN[p.skin], hair = HAIR[p.hair];
+  /* bochecha e boca saem do próprio tom de pele — funcionam em qualquer pele */
+  const map = { H:hair, D:mixHex(hair,'#ffffff',.22), S:skin, E:eyeColorFor(p.nm),
+                M:mixHex(skin,'#8a3a3a',.42), K:mixHex(skin,'#ff6f91',.34), C:p.shirt };
   let r = '';
   g.forEach((row,y)=>{
     for(let x=0;x<row.length;x++){
