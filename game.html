@@ -108,16 +108,6 @@ html,body{height:100vh}
 #endBar button.secondary{border-color:var(--line)}
 #endBar button:disabled{opacity:.4}
 #endStatus{width:100%;text-align:center;font-size:.5rem;color:var(--dim);min-height:1.2em}
-#createBar{display:none;gap:8px;width:var(--game-w);justify-content:center;flex-wrap:wrap;background:var(--panel);border:2px solid var(--good);padding:10px}
-#createBar .fld{display:flex;flex-direction:column;gap:3px;width:200px}
-#createBar label{font-size:.42rem;color:var(--dim)}
-#createBar input{font-family:inherit;font-size:.5rem;background:var(--bg);
-  border:2px solid var(--line);color:var(--text);padding:8px;width:100%}
-#createBar input:focus{outline:none;border-color:var(--good)}
-#createBar .btns{display:flex;gap:8px;width:100%;justify-content:center;margin-top:4px}
-#createBar button{font-family:inherit;font-size:.55rem;background:var(--bg);
-  border:2px solid var(--good);color:var(--text);padding:10px 16px;cursor:pointer}
-#createBar button.secondary{border-color:var(--line)}
 
 /* touch: canvas preenche a tela de verdade (encaixado pela proporção, sem
    fórmula de largura fixa), controles flutuam nos cantos como na maioria dos
@@ -138,10 +128,9 @@ html,body{height:100vh}
     width:50px;height:50px;font-size:.32rem}
   #touchBar #btnJump{right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));
     width:74px;height:74px;font-size:.4rem}
-  #endBar,#createBar{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));
+  #endBar{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));
     transform:translateX(-50%);width:calc(100vw - 20px);max-width:420px;max-height:min(70vh,70svh);
     overflow-y:auto;z-index:10}
-  #createBar{top:calc(10px + env(safe-area-inset-top));bottom:auto;max-height:min(94vh,94svh)}
 }
 </style>
 </head>
@@ -171,20 +160,6 @@ html,body{height:100vh}
     <button id="saveBtn">SALVAR SCORE</button>
     <button id="lbBtn" class="secondary">VER RANKING</button>
     <div id="endStatus"></div>
-  </div>
-  <div id="createBar">
-    <div class="fld"><label>NOME DA SUA PERSONAGEM</label><input id="cName" maxlength="20" placeholder="EX: SUA PRÓPRIA TRAJETÓRIA"></div>
-    <div class="fld"><label>NOME DO SEU PODER ESPECIAL</label><input id="cSkill" maxlength="20" placeholder="EX: FOCO TOTAL"></div>
-    <div class="fld"><label>DESAFIO 1 (obstáculo no chão)</label><input id="cCh1" maxlength="24" placeholder="EX: SÍNDROME DA IMPOSTORA"></div>
-    <div class="fld"><label>DESAFIO 2 (obstáculo alto)</label><input id="cCh2" maxlength="24" placeholder="EX: MANSPLAINING"></div>
-    <div class="fld"><label>DESAFIO 3 (obstáculo alto)</label><input id="cCh3" maxlength="24" placeholder="EX: FALTA DE MENTORIA"></div>
-    <div class="fld"><label>NOME DO SEU CHEFÃO</label><input id="cBossName" maxlength="20" placeholder="EX: O TETO DE VIDRO"></div>
-    <div class="fld"><label>FRASE DE AMEAÇA DELE</label><input id="cBossLine" maxlength="50" placeholder="EX: \"VOCÊ NÃO ESTÁ PRONTA.\""></div>
-    <div class="fld"><label>SUA CONQUISTA (tela de vitória)</label><input id="cWin" maxlength="120" placeholder="EX: CONSEGUI A PROMOÇÃO QUE ME DISSERAM QUE EU NÃO TINHA EXPERIÊNCIA PRA TER"></div>
-    <div class="btns">
-      <button id="createConfirmBtn">CRIAR E JOGAR</button>
-      <button id="createBackBtn" class="secondary">VOLTAR</button>
-    </div>
   </div>
 </div>
 
@@ -578,92 +553,6 @@ const CHARS=[
   },
 ];
 
-/* ══════════ CRIADOR DE PERSONAGEM ══════════ */
-const SKIN_KEYS=Object.keys(SKIN), HAIR_KEYS=Object.keys(HAIR), HEAD_KEYS=Object.keys(HEADS), TORSO_KEYS=Object.keys(TORSOS);
-const SKIN_LABELS={l:'CLARA',m:'MÉDIA',d:'ESCURA',dd:'BEM ESCURA'};
-const OUTFIT_COLORS=['#7b4fd4','#2d4a8a','#c9a227','#c95f2e','#2e7d5f','#c9445a','#4a5560','#ff8a4c'];
-const ABILITY_TYPES=[{type:'freeze',label:'ATRAVESSAR'},{type:'shield',label:'ESCUDO'},{type:'orbit',label:'TRAJETÓRIA PERFEITA'},{type:'debug',label:'ELIMINAR'}];
-const BOSS_PRESETS=[
-  {head:LORD_HEAD,torso:LORD_TORSO,pal:LORD_PAL,label:'CARTOLA'},
-  {head:COMM_HEAD,torso:COMM_TORSO,pal:COMM_PAL,label:'COMITÊ'},
-  {head:MACH_HEAD,torso:MACH_TORSO,pal:MACH_PAL,label:'MÁQUINA'},
-  {head:ALRM_HEAD,torso:ALRM_TORSO,pal:ALRM_PAL,label:'ALARME'},
-];
-const draft={skinIdx:0,hairIdx:1,headIdx:0,torsoIdx:0,colorIdx:0,abilIdx:2,bossIdx:0};
-let createRow=0, customIdx=null;
-function cycleDraft(dir){
-  const n=[SKIN_KEYS.length,HAIR_KEYS.length,HEAD_KEYS.length,TORSO_KEYS.length,OUTFIT_COLORS.length,ABILITY_TYPES.length,BOSS_PRESETS.length][createRow];
-  const key=['skinIdx','hairIdx','headIdx','torsoIdx','colorIdx','abilIdx','bossIdx'][createRow];
-  draft[key]=(draft[key]+dir+n)%n;
-  SFX.select();
-}
-function buildDraftChar(){
-  return { head:HEAD_KEYS[draft.headIdx], torso:TORSO_KEYS[draft.torsoIdx],
-    hair:HAIR_KEYS[draft.hairIdx], skin:SKIN_KEYS[draft.skinIdx],
-    color1:OUTFIT_COLORS[draft.colorIdx], color2:OUTFIT_COLORS[draft.colorIdx],
-    accent:'#e8e6f5', theme:OUTFIT_COLORS[draft.colorIdx] };
-}
-function gv(id){ return document.getElementById(id).value; }
-function openCreate(){ state='CREATE'; createRow=0; document.getElementById('createBar').style.display='flex'; }
-function hideCreateBar(){ document.getElementById('createBar').style.display='none'; }
-function confirmCreate(){
-  const name=(gv('cName')||'MINHA PERSONAGEM').trim().slice(0,20).toUpperCase();
-  const ch1=(gv('cCh1')||'BUG TEIMOSO').trim().slice(0,24).toUpperCase();
-  const ch2=(gv('cCh2')||'DUVIDARAM DE MIM').trim().slice(0,24).toUpperCase();
-  const ch3=(gv('cCh3')||'FALTA DE APOIO').trim().slice(0,24).toUpperCase();
-  const skillName=(gv('cSkill')||'MEU PODER').trim().slice(0,20).toUpperCase();
-  const bossName=(gv('cBossName')||'MEU DESAFIO').trim().slice(0,20).toUpperCase();
-  const bossLine=(gv('cBossLine')||'"Você não vai conseguir."').trim().slice(0,50) || '"Você não vai conseguir."';
-  const winText=(gv('cWin')||'Você conseguiu. Foi mais forte que o desafio.').trim().slice(0,140) || 'Você conseguiu. Foi mais forte que o desafio.';
-  const bp=BOSS_PRESETS[draft.bossIdx], abil=ABILITY_TYPES[draft.abilIdx];
-  const ch={
-    id:'custom', name, yr:'—', era:'SUA HISTÓRIA', ...buildDraftChar(),
-    skill:{ name:skillName, how:'Ajuda você a superar o próximo desafio', why:'Porque você já provou, na vida real, que consegue.', type:abil.type },
-    obstacles:[
-      {shape:'BUG', label:ch1, need:'jump', w:34,h:30, pts:10, deadly:true},
-      {shape:'RH', label:'PAPELADA', need:'jump', w:36,h:40, pts:10, deadly:true},
-      {shape:'CLOCK', label:'O RELÓGIO', need:'jump', w:32,h:30, pts:15, deadly:true},
-      {shape:'BALLOON', label:ch2, need:'duck', w:52,h:26, pts:20, deadly:true},
-      {shape:'MAIL', label:ch3, need:'duck', w:42,h:26, pts:20, deadly:true},
-      {shape:'LADDER', label:'DEGRAU QUEBRADO', need:'jump', w:36,h:44, pts:15, deadly:true},
-      {shape:'DOOR', label:'PORTA FECHADA', need:'jump', w:40,h:44, pts:15, deadly:true},
-      {shape:'CODE', label:'VITÓRIA', need:'collect', w:26,h:26, pts:25, deadly:false},
-    ],
-    boss:{ name:bossName, yr:'—', head:bp.head, torso:bp.torso, pal:bp.pal, hp:95,
-      intro:['Esse é o seu desafio.', bossLine],
-      qs:[{q:bossLine,pat:'line',dmg:16},{q:bossLine,pat:'wave',dmg:18},{q:bossLine,pat:'rain',dmg:20},{q:bossLine,pat:'spread',dmg:24}],
-      win:[winText] },
-  };
-  if(customIdx===null){ CHARS.push(ch); customIdx=CHARS.length-1; } else { CHARS[customIdx]=ch; }
-  selIdx=customIdx; state='SELECT'; hideCreateBar();
-}
-function drawCreate(){
-  drawBackground(0.6,t);
-  centerText(['CRIE SUA PERSONAGEM'],36,C.good,13);
-  centerText(['↑↓ escolhe · ←→ muda · preencha os campos abaixo e clique CRIAR E JOGAR'],60,C.dim,6);
-  drawHero(buildDraftChar(), 110, 280, false, (t/14|0)%3, true);
-  const rows=[
-    ['PELE', SKIN_LABELS[SKIN_KEYS[draft.skinIdx]]],
-    ['COR DO CABELO', HAIR_KEYS[draft.hairIdx].toUpperCase()],
-    ['PENTEADO', HEAD_KEYS[draft.headIdx].toUpperCase()],
-    ['ROUPA', TORSO_KEYS[draft.torsoIdx].toUpperCase()],
-    ['COR DA ROUPA', ''],
-    ['SEU PODER', ABILITY_TYPES[draft.abilIdx].label],
-    ['VISUAL DO CHEFÃO', BOSS_PRESETS[draft.bossIdx].label],
-  ];
-  let ry=100;
-  rows.forEach((r,i)=>{
-    const active=i===createRow;
-    cx.font='7px "Press Start 2P"';
-    cx.fillStyle=active?C.good:C.dim;
-    cx.fillText((active?'▶ ':'  ')+r[0], 220, ry);
-    if(i===4){ cx.fillStyle=OUTFIT_COLORS[draft.colorIdx]; cx.fillRect(430, ry-8, 34, 10); cx.strokeStyle=C.line; cx.strokeRect(430,ry-8,34,10); }
-    else { cx.fillStyle=active?C.text:C.dim; cx.fillText(r[1], 430, ry); }
-    ry+=22;
-  });
-  const bp=BOSS_PRESETS[draft.bossIdx];
-  drawGrid(bossGrid(bp.head,bp.torso), bp.pal, 610, 90, 2.4);
-}
 
 /* ══════════ FUNDO ══════════ */
 const stars=[];
@@ -725,7 +614,7 @@ function drawBackground(scrollSpeed, t){
 }
 
 /* ══════════ ESTADO ══════════ */
-let state='SELECT';   // SELECT CREATE RUN BOSSINTRO BOSSMENU BOSSTEXT BOSSDODGE VICTORY GAMEOVER LEADERBOARD
+let state='SELECT';   // SELECT RUN BOSSINTRO BOSSMENU BOSSTEXT BOSSDODGE VICTORY GAMEOVER LEADERBOARD
 let t=0, score=0, pressure=0, progress=0;
 let combo=0, comboMult=1, shake=0, flashRed=0;
 let selIdx=0, hero=CHARS[0];
@@ -783,19 +672,11 @@ addEventListener('keydown',e=>{
   if(document.activeElement && document.activeElement.tagName==='INPUT') return;
   keys[e.code]=true;
   if(state==='SELECT'){
-    const tot=CHARS.length+1;
+    const tot=CHARS.length;
     if(e.code==='ArrowLeft'){ selIdx=(selIdx+tot-1)%tot; SFX.select(); }
     if(e.code==='ArrowRight'){ selIdx=(selIdx+1)%tot; SFX.select(); }
-    if(e.code==='Space'||e.code==='Enter'){ if(selIdx>=CHARS.length) openCreate(); else startRun(); }
+    if(e.code==='Space'||e.code==='Enter') startRun();
     if(e.code==='KeyL') openLeaderboard();
-    return;
-  }
-  if(state==='CREATE'){
-    if(e.code==='ArrowUp'){ createRow=(createRow+6)%7; SFX.select(); }
-    if(e.code==='ArrowDown'){ createRow=(createRow+1)%7; SFX.select(); }
-    if(e.code==='ArrowLeft') cycleDraft(-1);
-    if(e.code==='ArrowRight') cycleDraft(1);
-    if(e.code==='Escape'){ state='SELECT'; hideCreateBar(); }
     return;
   }
   if(state==='VICTORY'||state==='GAMEOVER'){
@@ -829,26 +710,21 @@ const btn=(id,down,up)=>{
   if(up) el.addEventListener('touchend',e=>{e.preventDefault();up();},{passive:false});
 };
 function primaryAction(){
-  if(state==='SELECT'){ if(selIdx>=CHARS.length) openCreate(); else startRun(); }
+  if(state==='SELECT') startRun();
   else if(state==='VICTORY'||state==='GAMEOVER'){ state='SELECT'; hideEndBar(); }
   else if(state==='RUN') tryJump();
   else if(state==='BOSSINTRO'||state==='BOSSTEXT'||state==='BOSSWIN') advanceBossText();
   else if(state==='BOSSMENU') chooseBossAction();
-  else if(state==='CREATE') cycleDraft(1);
   else if(state==='LEADERBOARD') state=lbFrom;
 }
 btn('btnJump', ()=>{ keys['Space']=true; primaryAction(); }, ()=>{ keys['Space']=false; });
-document.getElementById('createConfirmBtn').addEventListener('click', confirmCreate);
-document.getElementById('createBackBtn').addEventListener('click', ()=>{ state='SELECT'; hideCreateBar(); });
 btn('btnDuck',()=>{
   if(state==='RUN') player.duck=true;
-  else if(state==='SELECT'){ const tot=CHARS.length+1; selIdx=(selIdx+1)%tot; SFX.select(); }
+  else if(state==='SELECT'){ const tot=CHARS.length; selIdx=(selIdx+1)%tot; SFX.select(); }
   else if(state==='BOSSMENU'){ bossSel=(bossSel+1)%4; SFX.select(); }
-  else if(state==='CREATE'){ createRow=(createRow+1)%7; SFX.select(); }
 },()=>{ player.duck=false; });
 btn('btnSkill',()=>{
   if(state==='RUN') useSkill();
-  else if(state==='CREATE') cycleDraft(-1);
 });
 
 /* toque no jogo: arrastar move a personagem (corrida) ou o cursor (desvio do chefe) */
@@ -1331,37 +1207,26 @@ function drawSelect(){
   drawBackground(1.0,t);
   centerText(['SHE RUNS'],52,C.violet,20);
   centerText(['escolha quem vai correr'],80,C.dim,6);
-  const isCreateSlot = selIdx>=CHARS.length;
   const bx=90, by=104, bw=W-180, bh=196;
   cx.fillStyle='rgba(11,10,20,.85)'; cx.fillRect(bx,by,bw,bh);
-  if(isCreateSlot){
-    cx.strokeStyle=C.good; cx.lineWidth=2; cx.strokeRect(bx,by,bw,bh);
-    cx.font='9px "Press Start 2P"'; cx.fillStyle=C.good;
-    const title=customIdx===null?'CRIAR MINHA PERSONAGEM':'EDITAR MINHA PERSONAGEM';
-    const tw=cx.measureText(title).width;
-    cx.fillText(title, bx+bw/2-tw/2, by+70);
-    cx.font='7px "Press Start 2P"'; cx.fillStyle=C.dim;
-    wrapText('Escolha o visual, escreva seus próprios desafios, seu chefão e a conquista que você já alcançou de verdade.', bx+50, by+104, bw-100, 16);
-  } else {
-    const ch=CHARS[selIdx];
-    cx.strokeStyle=ch.theme; cx.lineWidth=2; cx.strokeRect(bx,by,bw,bh);
-    drawHero(ch, bx+72, by+140, false, (t/14|0)%3, true);
-    cx.font='9px "Press Start 2P"'; cx.fillStyle=C.text; cx.fillText(ch.name, bx+140, by+34);
-    cx.font='6px "Press Start 2P"'; cx.fillStyle=C.dim; cx.fillText(ch.era, bx+140, by+52);
-    cx.font='7px "Press Start 2P"'; cx.fillStyle=ch.theme;
-    cx.fillText('★ '+ch.skill.name, bx+140, by+80);
-    cx.font='6px "Press Start 2P"'; cx.fillStyle=C.text;
-    wrapText(ch.skill.how, bx+140, by+98, bw-160, 12);
-    cx.fillStyle=C.dim;
-    wrapText(ch.skill.why, bx+140, by+130, bw-160, 12);
-    cx.fillStyle=C.bad; cx.font='7px "Press Start 2P"';
-    cx.fillText('CHEFE: '+ch.boss.name+' · '+ch.boss.yr, bx+140, by+176);
-  }
+  const ch=CHARS[selIdx];
+  cx.strokeStyle=ch.theme; cx.lineWidth=2; cx.strokeRect(bx,by,bw,bh);
+  drawHero(ch, bx+72, by+140, false, (t/14|0)%3, true);
+  cx.font='9px "Press Start 2P"'; cx.fillStyle=C.text; cx.fillText(ch.name, bx+140, by+34);
+  cx.font='6px "Press Start 2P"'; cx.fillStyle=C.dim; cx.fillText(ch.era, bx+140, by+52);
+  cx.font='7px "Press Start 2P"'; cx.fillStyle=ch.theme;
+  cx.fillText('★ '+ch.skill.name, bx+140, by+80);
+  cx.font='6px "Press Start 2P"'; cx.fillStyle=C.text;
+  wrapText(ch.skill.how, bx+140, by+98, bw-160, 12);
+  cx.fillStyle=C.dim;
+  wrapText(ch.skill.why, bx+140, by+130, bw-160, 12);
+  cx.fillStyle=C.bad; cx.font='7px "Press Start 2P"';
+  cx.fillText('CHEFE: '+ch.boss.name+' · '+ch.boss.yr, bx+140, by+176);
   cx.font='6px "Press Start 2P"'; cx.fillStyle=C.dim;
   centerText(['← →  TROCAR PERSONAGEM'],by+bh+22,C.dim,6);
   centerText(['ESPAÇO pular · ↓ abaixar · ←→ andar · Z especial · L ranking'],by+bh+42,C.dim,6);
   cx.globalAlpha=.5+Math.sin(t*.15)*.5;
-  centerText([isCreateSlot?'— TOQUE PRA CRIAR —':'— TOQUE PRA COMEÇAR —'],by+bh+66,isCreateSlot?C.good:C.gold,8);
+  centerText(['— TOQUE PRA COMEÇAR —'],by+bh+66,C.gold,8);
   cx.globalAlpha=1;
 }
 function wrapText(txt,x,y,maxW,lh){
@@ -1476,7 +1341,6 @@ function frame(){
   lbEntryBtn.style.display=(state==='SELECT' && getComputedStyle(topbarEl).display==='none')?'block':'none';
 
   if(state==='SELECT') drawSelect();
-  else if(state==='CREATE') drawCreate();
   else if(state==='LEADERBOARD') drawLeaderboard();
 
   else if(state==='RUN'){
