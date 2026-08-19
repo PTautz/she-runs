@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
 <title>She Runs — o jogo</title>
 <meta name="description" content="Side-scroller em pixel art: escolha uma pioneira da computação, atravesse os obstáculos reais da carreira e enfrente o chefe da própria época.">
+<meta name="theme-color" content="#0b0a14">
+<!-- "adicionar à tela de início" no iOS abre sem a barra do Safari (o jeito
+     mais confiável de ficar em tela cheia — a Fullscreen API sozinha não
+     funciona em aba normal do Safari no iPhone) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="She Runs">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -106,6 +115,13 @@ html,body{height:100vh}
   background:var(--panel);border:2px solid var(--violet);color:var(--text);padding:9px 12px;cursor:pointer}
 #backBtn:active{background:var(--line)}
 @media (pointer:coarse){ #backBtn{font-size:.42rem;padding:8px 10px} }
+/* tela cheia — mesmo canto do botão voltar (nunca aparecem juntos: só um
+   deles cabe em cada estado do jogo) */
+#fsBtn{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));
+  left:calc(10px + env(safe-area-inset-left));z-index:6;font-family:inherit;font-size:.5rem;
+  background:var(--panel);border:2px solid var(--cyan);color:var(--text);padding:9px 12px;cursor:pointer}
+#fsBtn:active{background:var(--line)}
+@media (pointer:coarse){ #fsBtn{font-size:.42rem;padding:8px 10px} }
 /* setas de trocar personagem — só no mobile, cantos livres da tela de seleção */
 #charNavBar{display:none}
 @media (pointer:coarse){
@@ -169,6 +185,7 @@ html,body{height:100vh}
   <canvas id="gameCanvas" class="rainbowFrameThin" width="1080" height="608"></canvas>
   <button id="lbEntryBtn">🏆 VER RANKING</button>
   <button id="backBtn">← VOLTAR</button>
+  <button id="fsBtn">⛶ TELA CHEIA</button>
   <div id="charNavBar">
     <button id="btnCharPrev" aria-label="Personagem anterior">◀</button>
     <button id="btnCharNext" aria-label="Próxima personagem">▶</button>
@@ -709,30 +726,29 @@ btn('btnSkill',()=>{
 
 /* toque no jogo: arrastar move a personagem (corrida) ou o cursor (desvio do chefe) */
 let touchDrag=null;
+/* toque na tela do jogo em si: só o desvio do chefe usa arrastar (precisão fina).
+   Durante a corrida o toque na tela NÃO faz mais nada — pular/abaixar/mover são
+   só pelos botões dedicados, pra evitar pulo/movimento sem querer. */
 cv.addEventListener('touchstart',e=>{
-  if(state!=='BOSSDODGE' && state!=='RUN'){ e.preventDefault(); primaryAction(); return; }
   e.preventDefault();
-  const r=cv.getBoundingClientRect();
-  touchDrag={x:e.touches[0].clientX-r.left, y:e.touches[0].clientY-r.top};
-  if(state==='RUN'){ tryJump(); keys['Space']=true; }   // toque simples também pula; toque de novo no ar faz pulo duplo
+  if(state==='BOSSDODGE'){
+    const r=cv.getBoundingClientRect();
+    touchDrag={x:e.touches[0].clientX-r.left, y:e.touches[0].clientY-r.top};
+    return;
+  }
+  if(state==='RUN') return;   // corrida: toque na tela não faz nada, só os botões
+  primaryAction();
 },{passive:false});
 cv.addEventListener('touchmove',e=>{
-  if(!touchDrag) return;
+  if(!touchDrag || state!=='BOSSDODGE') return;
   e.preventDefault();
   const r=cv.getBoundingClientRect();
   const nx=e.touches[0].clientX-r.left, ny=e.touches[0].clientY-r.top;
-  if(state==='BOSSDODGE'){
-    arena.px+=(nx-touchDrag.x)*(W/r.width); arena.py+=(ny-touchDrag.y)*(H/r.height);
-  } else if(state==='RUN'){
-    const dx=(nx-touchDrag.x)*(W/r.width);
-    player.x=Math.max(50, Math.min(W*.62, player.x+dx));
-    if((ny-touchDrag.y)*(H/r.height) > 40) player.duck=true;
-  }
+  arena.px+=(nx-touchDrag.x)*(W/r.width); arena.py+=(ny-touchDrag.y)*(H/r.height);
   touchDrag={x:nx,y:ny};
 },{passive:false});
 cv.addEventListener('touchend',e=>{
   touchDrag=null;
-  if(state==='RUN'){ player.duck=false; keys['Space']=false; }
 },{passive:false});
 
 /* ══════════ ESPECIAL ══════════ */
@@ -1280,9 +1296,42 @@ document.getElementById('lbBtn').addEventListener('click', openLeaderboard);
 document.getElementById('lbTopLink').addEventListener('click', openLeaderboard);
 document.getElementById('lbEntryBtn').addEventListener('click', openLeaderboard);
 document.getElementById('backBtn').addEventListener('click', ()=>{ if(state==='LEADERBOARD') state=lbFrom; });
+/* tela cheia: funciona direto no Android/desktop; no iPhone o Safari não
+   deixa site comum entrar em tela cheia, então avisamos o atalho real
+   (adicionar à tela de início) em vez de falhar em silêncio */
+function isIOS(){ return /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1); }
+function inStandaloneMode(){ return window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true; }
+async function toggleFullscreen(){
+  const el=document.documentElement;
+  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen;
+  const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen;
+  const isFs = document.fullscreenElement || document.webkitFullscreenElement;
+  try{
+    if(!isFs){
+      if(!req) throw new Error('unsupported');
+      await req.call(el);
+    } else if(exit){
+      await exit.call(document);
+    }
+  }catch(err){
+    if(isIOS() && !inStandaloneMode()){
+      alert('O Safari do iPhone não permite tela cheia numa aba comum.\nToque em Compartilhar (□↑) e depois em "Adicionar à Tela de Início" — abrindo por lá o jogo já fica sem a barra de endereço.');
+    }
+  }
+}
+document.getElementById('fsBtn').addEventListener('click', toggleFullscreen);
+/* mesmos botões ◀▶ servem pra trocar personagem na seleção (toque único)
+   e pra mover na corrida (segurar = mover contínuo, igual segurar A/D) */
 function cycleChar(dir){ const tot=CHARS.length; selIdx=(selIdx+dir+tot)%tot; SFX.select(); }
-document.getElementById('btnCharPrev').addEventListener('click', ()=>cycleChar(-1));
-document.getElementById('btnCharNext').addEventListener('click', ()=>cycleChar(1));
+function sideNavDown(dir){
+  if(state==='SELECT') cycleChar(dir);
+  else if(state==='RUN') keys[dir<0?'ArrowLeft':'ArrowRight']=true;
+}
+function sideNavUp(dir){
+  if(state==='RUN') keys[dir<0?'ArrowLeft':'ArrowRight']=false;
+}
+btn('btnCharPrev', ()=>sideNavDown(-1), ()=>sideNavUp(-1));
+btn('btnCharNext', ()=>sideNavDown(1), ()=>sideNavUp(1));
 function drawLeaderboard(){
   drawBackground(.5,t);
   rainbowText(['HALL DA FAMA'],48,14);
@@ -1314,7 +1363,8 @@ function drawLeaderboard(){
 
 /* ══════════ LOOP ══════════ */
 const topbarEl=document.getElementById('topbar'), lbEntryBtn=document.getElementById('lbEntryBtn'),
-      backBtn=document.getElementById('backBtn'), charNavBar=document.getElementById('charNavBar');
+      backBtn=document.getElementById('backBtn'), charNavBar=document.getElementById('charNavBar'),
+      fsBtn=document.getElementById('fsBtn');
 function frame(){
   t++;
   if(shake>0) shake--;
@@ -1326,8 +1376,9 @@ function frame(){
   lbEntryBtn.style.display=(state==='SELECT' && getComputedStyle(topbarEl).display==='none')?'block':'none';
   // voltar: visível sempre que dá pra voltar de onde se está (hoje só o ranking)
   backBtn.style.display=(state==='LEADERBOARD')?'block':'none';
-  // setas de trocar personagem: só na tela de seleção, só em telas de toque
-  charNavBar.style.display=(state==='SELECT' && matchMedia('(pointer:coarse)').matches)?'block':'none';
+  fsBtn.style.display=(state!=='LEADERBOARD')?'block':'none';
+  // setas ◀▶: trocam personagem na seleção, movem na corrida — só em telas de toque
+  charNavBar.style.display=((state==='SELECT'||state==='RUN') && matchMedia('(pointer:coarse)').matches)?'block':'none';
 
   if(state==='SELECT') drawSelect();
   else if(state==='LEADERBOARD') drawLeaderboard();
