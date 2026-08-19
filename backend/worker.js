@@ -2,6 +2,18 @@
 // KV namespace: SHE_RUNS_SCORES
 // Variável de ambiente secreta: SECRET_SALT (mesmo valor usado em game.html)
 
+// Limitador de taxa simples baseado na própria KV: cada IP só pode fazer
+// N chamadas por janela de tempo. Roda antes de qualquer outro trabalho —
+// quem estoura o limite recebe 429 sem gastar leitura/escrita do placar.
+async function rateLimited(env, ip, bucket, limit, windowSec) {
+  const key = `rl:${bucket}:${ip}`;
+  const raw = await env.SHE_RUNS_SCORES.get(key);
+  const count = raw ? parseInt(raw, 10) : 0;
+  if (count >= limit) return true;
+  await env.SHE_RUNS_SCORES.put(key, String(count + 1), { expirationTtl: windowSec });
+  return false;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -9,6 +21,7 @@ export default {
       'Access-Control-Allow-Origin': 'https://ptautz.github.io',
       'Content-Type': 'application/json',
     };
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: {
@@ -19,12 +32,18 @@ export default {
     }
 
     if (url.pathname === '/scores/top10' && request.method === 'GET') {
+      if (await rateLimited(env, ip, 'get', 20, 60)) {
+        return new Response(JSON.stringify({ scores: [], ok: false, error: 'rate_limited' }), { status: 429, headers });
+      }
       const raw = await env.SHE_RUNS_SCORES.get('leaderboard');
       const scores = raw ? JSON.parse(raw) : [];
       return new Response(JSON.stringify({ scores: scores.slice(0, 10) }), { headers });
     }
 
     if (url.pathname === '/scores' && request.method === 'POST') {
+      if (await rateLimited(env, ip, 'post', 8, 60)) {
+        return new Response(JSON.stringify({ ok: false, error: 'rate_limited' }), { status: 429, headers });
+      }
       const body = await request.json();
       const { name, score, character, token } = body;
 

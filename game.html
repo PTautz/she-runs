@@ -1275,7 +1275,15 @@ document.getElementById('saveBtn').addEventListener('click', async ()=>{
       body:JSON.stringify({name,score,character:hero.id,token}) });
     clearTimeout(timer);
     const data=await res.json();
-    st.textContent=data.rank?('SALVO! POSIÇÃO #'+data.rank+' NO RANKING'):'SCORE SALVO.';
+    if(res.status===429){
+      st.textContent='MUITAS TENTATIVAS — ESPERA UM POUCO E TENTA DE NOVO.';
+      document.getElementById('saveBtn').disabled=false;
+    } else if(data.ok===false){
+      st.textContent='NÃO FOI POSSÍVEL SALVAR O SCORE.';
+      document.getElementById('saveBtn').disabled=false;
+    } else {
+      st.textContent=data.rank?('SALVO! POSIÇÃO #'+data.rank+' NO RANKING'):'SCORE SALVO.';
+    }
   }catch(e){
     st.textContent='RANKING INDISPONÍVEL AGORA — TENTA DE NOVO DEPOIS.';
     document.getElementById('saveBtn').disabled=false;
@@ -1296,6 +1304,7 @@ async function openLeaderboard(){
     const res=await fetch(WORKER_URL+'/scores/top10',{signal:ctrl.signal});
     clearTimeout(timer);
     const data=await res.json();
+    if(res.status===429){ lbData=[]; lbStatus='MUITOS PEDIDOS — ESPERA UM POUCO'; return; }
     lbData=data.scores||[];
     lbStatus='';
   }catch(e){
