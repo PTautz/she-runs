@@ -99,6 +99,24 @@ html,body{height:100vh}
   background:var(--panel);border:2px solid var(--gold);color:var(--text);padding:9px 12px;cursor:pointer}
 #lbEntryBtn:active{background:var(--line)}
 @media (pointer:coarse){ #lbEntryBtn{font-size:.42rem;padding:8px 10px} }
+/* botão de voltar — visível sempre que a tela atual tem uma tela anterior clara
+   pra onde voltar (hoje: o ranking). Canto oposto ao botão de ranking. */
+#backBtn{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));
+  left:calc(10px + env(safe-area-inset-left));z-index:6;font-family:inherit;font-size:.5rem;
+  background:var(--panel);border:2px solid var(--violet);color:var(--text);padding:9px 12px;cursor:pointer}
+#backBtn:active{background:var(--line)}
+@media (pointer:coarse){ #backBtn{font-size:.42rem;padding:8px 10px} }
+/* setas de trocar personagem — só no mobile, cantos livres da tela de seleção */
+#charNavBar{display:none}
+@media (pointer:coarse){
+  #charNavBar{position:fixed;inset:0;pointer-events:none;display:block}
+  #charNavBar button{position:absolute;pointer-events:auto;top:50%;transform:translateY(-50%);
+    width:44px;height:60px;border-radius:10px;font-family:inherit;font-size:.9rem;
+    background:var(--panel);border:2px solid var(--violet);color:var(--text)}
+  #charNavBar button:active{background:var(--line)}
+  #btnCharPrev{left:calc(8px + env(safe-area-inset-left))}
+  #btnCharNext{right:calc(8px + env(safe-area-inset-right))}
+}
 #endBar{display:none;gap:8px;width:var(--game-w);justify-content:center;flex-wrap:wrap}
 #endBar input{font-family:inherit;font-size:.55rem;background:var(--panel);
   border:2px solid var(--line);color:var(--text);padding:12px;width:220px;text-transform:uppercase}
@@ -150,6 +168,11 @@ html,body{height:100vh}
   </div>
   <canvas id="gameCanvas" class="rainbowFrameThin" width="1080" height="608"></canvas>
   <button id="lbEntryBtn">🏆 VER RANKING</button>
+  <button id="backBtn">← VOLTAR</button>
+  <div id="charNavBar">
+    <button id="btnCharPrev" aria-label="Personagem anterior">◀</button>
+    <button id="btnCharNext" aria-label="Próxima personagem">▶</button>
+  </div>
   <div id="touchBar">
     <button id="btnDuck">↓ ABAIXAR</button>
     <button id="btnJump">↑ PULAR</button>
@@ -614,14 +637,20 @@ function tryJump(){
     player.vy=JUMP_FORCE; player.jumps=2; SFX.jump(); burst(player.x, player.y, '#ffffff', 6);
   }
 }
+/* WASD com a mesma função das setas em todo o jogo — normaliza aqui uma
+   única vez em vez de checar os dois códigos em cada lugar */
+const WASD_TO_ARROW = { KeyW:'ArrowUp', KeyA:'ArrowLeft', KeyS:'ArrowDown', KeyD:'ArrowRight' };
+const LEFT=e=>e.code==='ArrowLeft'||e.code==='KeyA', RIGHT=e=>e.code==='ArrowRight'||e.code==='KeyD',
+      UP=e=>e.code==='ArrowUp'||e.code==='KeyW', DOWN=e=>e.code==='ArrowDown'||e.code==='KeyS';
 addEventListener('keydown',e=>{
   if(e.repeat) return;
   if(document.activeElement && document.activeElement.tagName==='INPUT') return;
   keys[e.code]=true;
+  if(WASD_TO_ARROW[e.code]) keys[WASD_TO_ARROW[e.code]]=true;   // RUN e o desvio do chefe leem keys['Arrow...'] direto
   if(state==='SELECT'){
     const tot=CHARS.length;
-    if(e.code==='ArrowLeft'){ selIdx=(selIdx+tot-1)%tot; SFX.select(); }
-    if(e.code==='ArrowRight'){ selIdx=(selIdx+1)%tot; SFX.select(); }
+    if(LEFT(e)){ selIdx=(selIdx+tot-1)%tot; SFX.select(); }
+    if(RIGHT(e)){ selIdx=(selIdx+1)%tot; SFX.select(); }
     if(e.code==='Space'||e.code==='Enter') startRun();
     if(e.code==='KeyL') openLeaderboard();
     return;
@@ -636,20 +665,24 @@ addEventListener('keydown',e=>{
     return;
   }
   if(state==='RUN'){
-    if(e.code==='Space'||e.code==='ArrowUp') tryJump();
-    if(e.code==='ArrowDown') player.duck=true;
+    if(e.code==='Space'||UP(e)) tryJump();
+    if(DOWN(e)) player.duck=true;
     if(e.code==='KeyZ'||e.code==='KeyF') useSkill();
   }
   if(state==='BOSSINTRO'||state==='BOSSTEXT'||state==='BOSSWIN'){
     if(e.code==='Space'||e.code==='Enter') advanceBossText();
   }
   if(state==='BOSSMENU'){
-    if(e.code==='ArrowUp'){ bossSel=(bossSel+3)%4; SFX.select(); }
-    if(e.code==='ArrowDown'){ bossSel=(bossSel+1)%4; SFX.select(); }
+    if(UP(e)){ bossSel=(bossSel+3)%4; SFX.select(); }
+    if(DOWN(e)){ bossSel=(bossSel+1)%4; SFX.select(); }
     if(e.code==='Space'||e.code==='Enter') chooseBossAction();
   }
 });
-addEventListener('keyup',e=>{ keys[e.code]=false; if(e.code==='ArrowDown') player.duck=false; });
+addEventListener('keyup',e=>{
+  keys[e.code]=false;
+  if(WASD_TO_ARROW[e.code]) keys[WASD_TO_ARROW[e.code]]=false;
+  if(DOWN(e)) player.duck=false;
+});
 
 const btn=(id,down,up)=>{
   const el=document.getElementById(id);
@@ -1171,7 +1204,7 @@ function drawSelect(){
   cx.fillText('CHEFE: '+ch.boss.name+' · '+ch.boss.yr, bx+140, by+176);
   cx.font='6px "Press Start 2P"'; cx.fillStyle=C.dim;
   centerText(['← →  TROCAR PERSONAGEM'],by+bh+22,C.dim,6);
-  centerText(['ESPAÇO pular · ↓ abaixar · ←→ andar · Z especial · L ranking'],by+bh+42,C.dim,6);
+  centerText(['ESPAÇO/W pular · S abaixar · A D ou ←→ andar/trocar · Z especial · L ranking'],by+bh+42,C.dim,6);
   cx.globalAlpha=.5+Math.sin(t*.15)*.5;
   centerText(['— TOQUE PRA COMEÇAR —'],by+bh+66,C.gold,8);
   cx.globalAlpha=1;
@@ -1246,6 +1279,10 @@ async function openLeaderboard(){
 document.getElementById('lbBtn').addEventListener('click', openLeaderboard);
 document.getElementById('lbTopLink').addEventListener('click', openLeaderboard);
 document.getElementById('lbEntryBtn').addEventListener('click', openLeaderboard);
+document.getElementById('backBtn').addEventListener('click', ()=>{ if(state==='LEADERBOARD') state=lbFrom; });
+function cycleChar(dir){ const tot=CHARS.length; selIdx=(selIdx+dir+tot)%tot; SFX.select(); }
+document.getElementById('btnCharPrev').addEventListener('click', ()=>cycleChar(-1));
+document.getElementById('btnCharNext').addEventListener('click', ()=>cycleChar(1));
 function drawLeaderboard(){
   drawBackground(.5,t);
   rainbowText(['HALL DA FAMA'],48,14);
@@ -1276,7 +1313,8 @@ function drawLeaderboard(){
 }
 
 /* ══════════ LOOP ══════════ */
-const topbarEl=document.getElementById('topbar'), lbEntryBtn=document.getElementById('lbEntryBtn');
+const topbarEl=document.getElementById('topbar'), lbEntryBtn=document.getElementById('lbEntryBtn'),
+      backBtn=document.getElementById('backBtn'), charNavBar=document.getElementById('charNavBar');
 function frame(){
   t++;
   if(shake>0) shake--;
@@ -1286,6 +1324,10 @@ function frame(){
 
   // botão flutuante de ranking: só aparece quando a topbar (que já tem o link) some — telas curtas de celular
   lbEntryBtn.style.display=(state==='SELECT' && getComputedStyle(topbarEl).display==='none')?'block':'none';
+  // voltar: visível sempre que dá pra voltar de onde se está (hoje só o ranking)
+  backBtn.style.display=(state==='LEADERBOARD')?'block':'none';
+  // setas de trocar personagem: só na tela de seleção, só em telas de toque
+  charNavBar.style.display=(state==='SELECT' && matchMedia('(pointer:coarse)').matches)?'block':'none';
 
   if(state==='SELECT') drawSelect();
   else if(state==='LEADERBOARD') drawLeaderboard();
