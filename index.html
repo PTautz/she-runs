@@ -160,13 +160,19 @@ const TPL = {
   afro:["..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHSSSSSSHHH","HHHSEESEESHH","HHHSSSSSSSHH",".HHSSMMMSSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
   short:["............","...HHHHHH...","..HHHHHHHH..","..HSSSSSSH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSS..","...SSSSSSS..","....SSSSS...","....SSSS....","..CCCCCCCC..",".CCCCCCCCCC."],
   bun:[".....HH.....","....HHHH....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+  /* variantes com acessório de identidade — só para quem tem o traço marcante
+     na história real (laço da Ada, boné da Grace, óculos da Katherine) */
+  updo_pin:["....HH......","...HHHHC....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.","..HSSMMMSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
+  cap:[".CCCCCCCC...","CCCCCCCCCCCC","CCCCCCCCCCCC","..HSSSSSSH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSS..","...SSSSSSS..","....SSSSS...","....SSSS....","..CCCCCCCC..",".CCCCCCCCCC."],
+  afro_glasses:["..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHSSSSSSHHH","HHHCEESEECHH","HHHSSSSSSSHH",".HHSSMMMSSH.","..HSSSSSSSH.","...SSSSSSS..","....SSSSS...","..CCCCCCCC..",".CCCCCCCCCC."],
 };
 const SKIN = { l:'#f2c9a8', m:'#c98b5e', d:'#8a5533', dd:'#5f381f' };
 const HAIR = { blk:'#241c30', brn:'#5d3a24', gry:'#b9b4c9', wht:'#e4e0ee', red:'#a8442a' };
 
 function portrait(p, px){
   const g = TPL[p.tpl];
-  const map = { H:HAIR[p.hair], S:SKIN[p.skin], E:'#1a1526', M:'#a8546a', C:p.shirt };
+  /* estilo minimalista: sem boca visível (M vira pele), só olhos como blocos sólidos */
+  const map = { H:HAIR[p.hair], S:SKIN[p.skin], E:'#1a1526', M:SKIN[p.skin], C:p.shirt };
   let r = '';
   g.forEach((row,y)=>{
     for(let x=0;x<row.length;x++){
@@ -202,7 +208,7 @@ function eraIcon(name, color){
 const P = [
 /* ═══ PIONEIRAS ═══ */
 { era:'pioneer', yr:'1843', nm:'Ada Lovelace', role:'Matemática · primeiro algoritmo publicado',
-  tpl:'updo', hair:'brn', skin:'l', shirt:'#7b4fd4',
+  tpl:'updo_pin', hair:'brn', skin:'l', shirt:'#7b4fd4',
   tags:['algoritmo','máquina analítica'],
   src:'https://www.britannica.com/biography/Ada-Lovelace', srcNm:'Britannica',
   body:['Traduziu para o inglês um artigo do engenheiro italiano Luigi Menabrea sobre a Máquina Analítica de Charles Babbage e anexou notas próprias, três vezes maiores que o texto original.',
@@ -226,7 +232,7 @@ const P = [
         'Na demonstração pública do ENIAC, em fevereiro de 1946, elas apareciam nas fotos oficiais mas não foram apresentadas como programadoras. Durante décadas, arquivos as identificaram como modelos posando ao lado do equipamento. A correção histórica começou nos anos 1980.']},
 
 { era:'pioneer', yr:'1952', nm:'Grace Hopper', role:'Contra-almirante · primeiro compilador',
-  tpl:'short', hair:'gry', skin:'l', shirt:'#2d4a8a',
+  tpl:'cap', hair:'gry', skin:'l', shirt:'#2d4a8a',
   tags:['compilador','cobol','bug'],
   src:'https://www.history.navy.mil/browse-by-topic/people/namesakes/grace-hopper.html', srcNm:'U.S. Naval History and Heritage Command',
   body:['Programou o Harvard Mark I durante a Segunda Guerra e, em 1952, criou o A-0, o primeiro compilador da história, quando parte da comunidade considerava impossível traduzir automaticamente linguagem humana para código de máquina.',
@@ -267,7 +273,7 @@ const P = [
         'Chegou ao cargo de supervisora-chefe de programação e matemática no Goddard Space Flight Center, posição de comando técnico raríssima para uma mulher negra naquele contexto.']},
 
 { era:'nasa', yr:'1962', nm:'Katherine Johnson', role:'Matemática da NASA · trajetórias orbitais',
-  tpl:'updo', hair:'blk', skin:'d', shirt:'#c9a227',
+  tpl:'afro_glasses', hair:'blk', skin:'d', shirt:'#c9a227',
   tags:['friendship 7','apollo','trajetória'],
   src:'https://www.nasa.gov/centers-and-facilities/langley/katherine-johnson-biography/', srcNm:'NASA',
   body:['Trabalhou na agência quando "computador" ainda era um cargo ocupado por mulheres, e no caso dela por mulheres negras, em uma sala separada das demais.',

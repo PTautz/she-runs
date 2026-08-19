@@ -266,10 +266,15 @@ function drawGrid(grid, pal, x, y, s){
 /* ── CORPO PADRÃO das personagens: 12 colunas × 18 linhas ──
    cabeça 8 · tronco 7 · pernas 3 — a mesma proporção para todas  */
 const HEADS = {
-  updo:[ "....HH......","...HHHH.....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSMMMSSH.","..HSSSSSSH.." ],
+  /* Ada: coque + laço/flor de acento (G) na fita do cabelo */
+  updo:[ "....HH......","...HHHHG....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSMMMSSH.","..HSSSSSSH.." ],
   short:["............","...HHHHHH...","..HHHHHHHH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSSH.","...SSSSSSS.." ],
   long: ["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.",".HHSSMMMSSH.",".HHSSSSSSH.." ],
   bun:  [".....HH.....","....HHHH....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.","..HSEESEESH.","..HSSMMMSSH.","...SSSSSSS.." ],
+  /* Grace: boné de fita naval — topo C, aba D, cabelo curto aparecendo embaixo */
+  cap:  [ "..CCCCCCCC..",".CCCCCCCCCC.",".DDDDDDDDDD.","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSSH.","...SSSSSSS.." ],
+  /* Katherine: black-power afro volumoso + óculos de aro claro (G, acento) — contraste alto contra pele/cabelo escuros */
+  afro: [ "..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHGEESEEGHH","HHHSSSSSSHHH",".HHSSMMMSSH.","..HSSSSSSH.." ],
 };
 /* tronco com ombros, braços (S = pele) e detalhe da roupa (G) */
 const TORSOS = {
@@ -290,7 +295,8 @@ const HERO_S=2.6, HERO_W=12*HERO_S, HERO_H=18*HERO_S;
 const HERO_H_DUCK=(8+4+2)*HERO_S;   // cabeça 8 + metade do tronco 4 + pernas curtas 2
 
 function heroPal(ch){
-  return { H:HAIR[ch.hair], S:SKIN[ch.skin], E:'#1a1526', M:'#a8546a',
+  /* estilo minimalista: sem boca visível (M vira pele), só olhos como blocos sólidos */
+  return { H:HAIR[ch.hair], S:SKIN[ch.skin], E:'#1a1526', M:SKIN[ch.skin],
            C:ch.color1, D:ch.color2, G:ch.accent, P:ch.color2, B:'#161225' };
 }
 function drawHero(ch,x,y,duck,legFrame,onGround){
@@ -344,7 +350,57 @@ const LADDER=["r......r","rRRRRRRr","r......r","rRRRRRRr","r......r","r..XX..r",
 const LADDER_PAL={r:'#8a7a5a', R:'#d9c9a8', X:'#ff5d6c'};
 const DOOR=["dddddddddd","d........d","d.eeeeee.d","d.e....e.d","d.e....e.d","d.e....K.d","d.e....e.d","d.e....e.d","d.eeeeee.d","dddddddddd"];
 const DOOR_PAL={d:'#5a4a3a', e:'#8a2e6f', K:'#f7c343'};
+/* genéricos — usados como fallback (personagens criadas no editor) */
 const SPRITES={ BUG:[BUG,BUG_PAL], RH:[RH,RH_PAL], CLOCK:[CLOCK,CLOCK_PAL], BALLOON:[BALLOON,BALLOON_PAL], MAIL:[MAIL,MAIL_PAL], CODE:[CODE,CODE_PAL], LADDER:[LADDER,LADDER_PAL], DOOR:[DOOR,DOOR_PAL] };
+
+/* ── obstáculos-assinatura: BUG e CODE ganham forma própria por personagem,
+   ligada à história real dela (a mariposa da Grace, os óculos/estática da
+   Katherine, etc). Os outros 6 obstáculos reaproveitam a mesma silhueta
+   (já testada e legível) só recoloridos com a paleta de cada uma. ── */
+const ADA_EYE=["..gggg..",".g....g.","g.geeg.g","g.eeee.g","g.geeg.g",".g....g.","..gggg.."];
+const ADA_EYE_PAL={g:'#4a2e8a', e:'#f7c343'};
+const GRACE_MOTH=[".g....g.","ggwwwwgg","gwwwwwwg","..wmmw..","gwwwwwwg","ggwwwwgg",".g....g."];
+const GRACE_MOTH_PAL={g:'#22386b', w:'#2d4a8a', m:'#f7c343'};
+const KATH_GLITCH=["g.g.g.g.",".g.g.g..","g.gggg.g",".geeeg..","g.gggg.g",".g.g.g..","g.g.g.g."];
+const KATH_GLITCH_PAL={g:'#8a6f1a', e:'#e8e6f5'};
+const HAM_ALARM=["...gg...","..gggg..",".gg..gg.","g.geeg.g","gggggggg",".g....g.","..g..g.."];
+const HAM_ALARM_PAL={g:'#8a3f1a', e:'#e8e6f5'};
+
+const ADA_SCROLL=["..dddd...",".dwwwwd..",".dw...wd.",".dwwwwwd.",".dw...wd.",".dwwwwwd.",".dddddd..","....d...."];
+const ADA_SCROLL_PAL={d:'#4a2e8a', w:'#e4d9f5'};
+const GRACE_MONITOR=["ddddddddd","d.......d","d.wwwww.d","d.wgwgw.d","d.wwwww.d","d.......d","ddddddddd","....d....","...ddd..."];
+const GRACE_MONITOR_PAL={d:'#22386b', w:'#d6e0f2', g:'#f7c343'};
+const KATH_CALC=["ddddddddd","d.wwwww.d","d.......d","d.g.g.g.d","d.......d","d.g.g.g.d","d.......d","ddddddddd","........."];
+const KATH_CALC_PAL={d:'#8a6f1a', w:'#f5ecc9', g:'#e8e6f5'};
+const HAM_CHIP=["ddddddddd","d.wwwww.d","d.wgwgw.d","d.wgwgw.d","d.wwwww.d","ddddddddd","..d...d..","..d...d..","...ddd..."];
+const HAM_CHIP_PAL={d:'#8a3f1a', w:'#f5ddc9', g:'#e8e6f5'};
+
+const SIGNATURE_SPRITES={
+  ada:      { BUG:[ADA_EYE,ADA_EYE_PAL],       CODE:[ADA_SCROLL,ADA_SCROLL_PAL] },
+  grace:    { BUG:[GRACE_MOTH,GRACE_MOTH_PAL], CODE:[GRACE_MONITOR,GRACE_MONITOR_PAL] },
+  katherine:{ BUG:[KATH_GLITCH,KATH_GLITCH_PAL], CODE:[KATH_CALC,KATH_CALC_PAL] },
+  hamilton: { BUG:[HAM_ALARM,HAM_ALARM_PAL],   CODE:[HAM_CHIP,HAM_CHIP_PAL] },
+};
+const SHARED_GRIDS={ RH, CLOCK, BALLOON, MAIL, LADDER, DOOR };
+const PALE_PAPER={ ada:'#e4d9f5', grace:'#d6e0f2', katherine:'#f5ecc9', hamilton:'#f5ddc9' };
+function tintedPal(shape, ch){
+  const pale = PALE_PAPER[ch.id] || '#d9c9a8';
+  switch(shape){
+    case 'RH':      return { w:pale, r:ch.color2, R:'#ff5d6c' };
+    case 'CLOCK':   return { c:ch.color1, d:'#0b0a14' };
+    case 'BALLOON': return { b:ch.color1, w:pale };
+    case 'MAIL':    return { m:ch.color2 };
+    case 'LADDER':  return { r:ch.color2, R:ch.accent, X:'#ff5d6c' };
+    case 'DOOR':    return { d:ch.color2, e:ch.color1, K:ch.accent };
+    default: return null;
+  }
+}
+function getSprite(hero, shape){
+  const sig = SIGNATURE_SPRITES[hero.id];
+  if(sig && sig[shape]) return sig[shape];
+  if(SHARED_GRIDS[shape]) return [ SHARED_GRIDS[shape], tintedPal(shape, hero) ];
+  return SPRITES[shape];
+}
 
 /* ══════════ PERSONAGENS — cada uma com especial e chefe próprios ══════════ */
 const CHARS=[
@@ -377,7 +433,7 @@ const CHARS=[
   },
   {
     id:'grace', name:'GRACE HOPPER', yr:'1952', era:'ERA DO COMPILADOR · 1952',
-    head:'short', torso:'uniform', hair:'gry', skin:'l',
+    head:'cap', torso:'uniform', hair:'gry', skin:'l',
     color1:'#2d4a8a', color2:'#22386b', accent:'#f7c343', theme:C.cyan,
     skill:{ name:'DEBUG', how:'Elimina o obstáculo mais próximo e vira pontos',
             why:'A equipe dela registrou a mariposa no relé do Mark II — o "bug" original.',
@@ -404,7 +460,7 @@ const CHARS=[
   },
   {
     id:'katherine', name:'KATHERINE JOHNSON', yr:'1962', era:'ERA NASA · 1962',
-    head:'updo', torso:'blouse', hair:'blk', skin:'d',
+    head:'afro', torso:'blouse', hair:'blk', skin:'d',
     color1:'#c9a227', color2:'#8a6f1a', accent:'#e8e6f5', theme:C.gold,
     skill:{ name:'CÁLCULO ORBITAL', how:'Trajetória perfeita: 4s atravessando tudo sem dano',
             why:'Glenn não subiu no Friendship 7 até ela conferir os números à mão.',
@@ -1081,7 +1137,7 @@ function drawObstacles(){
       cx.fillStyle='rgba(247,195,67,.18)';
       cx.beginPath(); cx.arc(o.x+o.w/2,o.y+o.h/2, o.w*.8+Math.sin(t*.15)*3, 0, 6.28); cx.fill();
     }
-    const [grid,pal]=SPRITES[def.shape];
+    const [grid,pal]=getSprite(hero, def.shape);
     const ghost = player.freeze>0 && def.deadly;   // ALGORITMO: quase transparente e atravessável
     if(ghost) cx.globalAlpha=.2;
     drawGrid(grid,pal,o.x,o.y,o.w/grid[0].length);
