@@ -266,15 +266,15 @@ function drawGrid(grid, pal, x, y, s){
 /* ── CORPO PADRÃO das personagens: 12 colunas × 18 linhas ──
    cabeça 8 · tronco 7 · pernas 3 — a mesma proporção para todas  */
 const HEADS = {
-  /* Ada: coque + laço/flor de acento (G) na fita do cabelo */
-  updo:[ "....HH......","...HHHHG....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSMMMSSH.","..HSSSSSSH.." ],
-  short:["............","...HHHHHH...","..HHHHHHHH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSSH.","...SSSSSSS.." ],
-  long: ["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.",".HHSSMMMSSH.",".HHSSSSSSH.." ],
-  bun:  [".....HH.....","....HHHH....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.","..HSEESEESH.","..HSSMMMSSH.","...SSSSSSS.." ],
-  /* Grace: boné de fita naval — topo C, aba D, cabelo curto aparecendo embaixo */
-  cap:  [ "..CCCCCCCC..",".CCCCCCCCCC.",".DDDDDDDDDD.","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSSH.","...SSSSSSS.." ],
-  /* Katherine: black-power afro volumoso + óculos de aro claro (G, acento) — contraste alto contra pele/cabelo escuros */
-  afro: [ "..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHGEESEEGHH","HHHSSSSSSHHH",".HHSSMMMSSH.","..HSSSSSSH.." ],
+  /* Ada: coque + faixa/tiara (G) no meio do cabelo + bochecha rosada (K) perto do queixo */
+  updo:[ "....HH......","...HHHHHH...","..GGGGGGGG..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSMMMSSH.","..HSKSSSKH.." ],
+  short:["............","...HHHHHH...","..HHHHHHHH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSSH.","...SKSSSKS.." ],
+  long: ["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.",".HHSSMMMSSH.",".HHSKSSSKH.." ],
+  bun:  [".....HH.....","....HHHH....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.","..HSEESEESH.","..HSSMMMSSH.","...SKSSSKS.." ],
+  /* Grace: boné de fita naval — topo C, aba D, cabelo curto aparecendo embaixo + bochecha */
+  cap:  [ "..CCCCCCCC..",".CCCCCCCCCC.",".DDDDDDDDDD.","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSSMMMSSH.","...SKSSSKS.." ],
+  /* Katherine: black-power afro volumoso + óculos de aro claro (G, acento) + bochecha — contraste alto contra pele/cabelo escuros */
+  afro: [ "..HHHHHHHH..",".HHHHHHHHHH.","HHHHHHHHHHHH","HHHSSSSSSHHH","HHHGEESEEGHH","HHHSSSSSSHHH",".HHSSMMMSSH.","..HSKSSSKH.." ],
 };
 /* tronco com ombros, braços (S = pele) e detalhe da roupa (G) */
 const TORSOS = {
@@ -295,8 +295,8 @@ const HERO_S=2.6, HERO_W=12*HERO_S, HERO_H=18*HERO_S;
 const HERO_H_DUCK=(8+4+2)*HERO_S;   // cabeça 8 + metade do tronco 4 + pernas curtas 2
 
 function heroPal(ch){
-  /* estilo minimalista: sem boca visível (M vira pele), só olhos como blocos sólidos */
-  return { H:HAIR[ch.hair], S:SKIN[ch.skin], E:'#1a1526', M:SKIN[ch.skin],
+  /* estilo minimalista: sorrisinho rosado discreto (M) e bochecha (K) */
+  return { H:HAIR[ch.hair], S:SKIN[ch.skin], E:'#1a1526', M:'#e0a597', K:'#ff8fa3',
            C:ch.color1, D:ch.color2, G:ch.accent, P:ch.color2, B:'#161225' };
 }
 function drawHero(ch,x,y,duck,legFrame,onGround){
