@@ -108,16 +108,16 @@ html,body{height:100vh}
 #rotatePrompt p{font-size:.75rem;line-height:1.8;color:var(--text)}
 #rotatePrompt p.sub{font-size:.6rem;color:var(--dim)}
 @keyframes rotHint{0%,100%{transform:rotate(0deg)}50%{transform:rotate(90deg)}}
-/* botões flutuantes de canto (ranking / voltar) — mesmo violeta e mesmo brilho
-   dos botões circulares, só que em formato de chip (precisam de texto) */
-#lbEntryBtn,#backBtn{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));
-  z-index:6;font-family:inherit;font-size:.5rem;
+/* botões flutuantes de canto (ranking / voltar pro site) — mesmo violeta e
+   mesmo brilho dos botões circulares, só que em formato de chip (texto) */
+#lbEntryBtn,#siteBtn{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));
+  z-index:6;font-family:inherit;font-size:.5rem;text-decoration:none;
   background:var(--panel);border:2px solid var(--violet);color:var(--text);padding:9px 12px;cursor:pointer;
   box-shadow:0 0 10px rgba(199,125,255,.4)}
 #lbEntryBtn{right:calc(10px + env(safe-area-inset-right))}
-#backBtn{left:calc(10px + env(safe-area-inset-left))}
-#lbEntryBtn:active,#backBtn:active{background:var(--line)}
-@media (pointer:coarse){ #lbEntryBtn,#backBtn{font-size:.42rem;padding:8px 10px} }
+#siteBtn{left:calc(10px + env(safe-area-inset-left))}
+#lbEntryBtn:active,#siteBtn:active{background:var(--line)}
+@media (pointer:coarse){ #lbEntryBtn,#siteBtn{font-size:.42rem;padding:8px 10px} }
 /* setas de trocar personagem — só no mobile, cantos livres da tela de seleção.
    Mesmo círculo/brilho violeta do resto dos controles flutuantes (touchBar,
    ranking, voltar) — um único sistema visual, não um botão por estilo. */
@@ -157,7 +157,7 @@ html,body{height:100vh}
   #touchBar button{position:absolute;pointer-events:auto;flex:none;
     width:56px;height:56px;border-radius:50%;padding:0;font-size:.34rem;line-height:1.15}
   #touchBar #btnDuck{left:calc(18px + env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom))}
-  #touchBar #btnSkill{right:calc(100px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));
+  #touchBar #btnSkill{right:calc(130px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));
     width:42px;height:42px;font-size:.28rem}
   #touchBar #btnJump{right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));
     width:72px;height:72px;font-size:.4rem}
@@ -183,7 +183,7 @@ html,body{height:100vh}
   </div>
   <canvas id="gameCanvas" class="rainbowFrameThin" width="1080" height="608"></canvas>
   <button id="lbEntryBtn">🏆 RANKING</button>
-  <button id="backBtn">← VOLTAR</button>
+  <a id="siteBtn" href="index.html">🏠 SITE</a>
   <div id="charNavBar">
     <button id="btnCharPrev" aria-label="Personagem anterior">◀</button>
     <button id="btnCharNext" aria-label="Próxima personagem">▶</button>
@@ -1293,7 +1293,6 @@ async function openLeaderboard(){
 document.getElementById('lbBtn').addEventListener('click', openLeaderboard);
 document.getElementById('lbTopLink').addEventListener('click', openLeaderboard);
 document.getElementById('lbEntryBtn').addEventListener('click', openLeaderboard);
-document.getElementById('backBtn').addEventListener('click', ()=>{ if(state==='LEADERBOARD') state=lbFrom; });
 /* mesmos botões ◀▶ servem pra trocar personagem na seleção (toque único)
    e pra mover na corrida (segurar = mover contínuo, igual segurar A/D) */
 function cycleChar(dir){ const tot=CHARS.length; selIdx=(selIdx+dir+tot)%tot; SFX.select(); }
@@ -1337,7 +1336,7 @@ function drawLeaderboard(){
 
 /* ══════════ LOOP ══════════ */
 const topbarEl=document.getElementById('topbar'), lbEntryBtn=document.getElementById('lbEntryBtn'),
-      backBtn=document.getElementById('backBtn'), charNavBar=document.getElementById('charNavBar');
+      siteBtn=document.getElementById('siteBtn'), charNavBar=document.getElementById('charNavBar');
 function frame(){
   t++;
   if(shake>0) shake--;
@@ -1345,10 +1344,13 @@ function frame(){
   cx.save();
   if(shake>0) cx.translate((Math.random()-.5)*shake*2,(Math.random()-.5)*shake*2);
 
-  // botão flutuante de ranking: só aparece quando a topbar (que já tem o link) some — telas curtas de celular
-  lbEntryBtn.style.display=(state==='SELECT' && getComputedStyle(topbarEl).display==='none')?'block':'none';
-  // voltar: visível sempre que dá pra voltar de onde se está (hoje só o ranking)
-  backBtn.style.display=(state==='LEADERBOARD')?'block':'none';
+  // botão flutuante de ranking / site: só aparecem quando a topbar (que já
+  // tem os links) some — telas curtas de celular. Ranking some só quando já
+  // está na tela de ranking (senão é redundante); site sempre visível, é a
+  // única saída do jogo pro resto do site em telas onde a topbar não cabe.
+  const topbarHidden = getComputedStyle(topbarEl).display==='none';
+  lbEntryBtn.style.display=(topbarHidden && state!=='LEADERBOARD')?'block':'none';
+  siteBtn.style.display = topbarHidden ? 'block' : 'none';
   // setas ◀▶: trocam personagem na seleção, movem na corrida — só em telas de toque
   charNavBar.style.display=((state==='SELECT'||state==='RUN') && matchMedia('(pointer:coarse)').matches)?'block':'none';
 
