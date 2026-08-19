@@ -242,7 +242,7 @@ function drawGrid(grid, pal, x, y, s){
    cabeça 8 · tronco 7 · pernas 3 — a mesma proporção para todas  */
 const HEADS = {
   /* Ada: coque + faixa/tiara (G) no meio do cabelo + bochecha (K) ao lado da boca, não embaixo */
-  updo:[ "....HH......","...HHHHHH...","..GGGGGGGG..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSKMMMKSH.","..HSSSSSSH.." ],
+  updo:[ "....HH......","...HHHHHH...",".GGGGGGGGGG.",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSKMMMKSH.","..HSSSSSSH.." ],
   short:["............","...HHHHHH...","..HHHHHHHH..","..HSSSSSSH..","..HSEESEESH.","..HSSSSSSSH.","..HSKMMMKSH.","...SSSSSSS.." ],
   long: ["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.",".HHSEESEESH.",".HHSSSSSSSH.",".HHSKMMMKSH.",".HHSSSSSSH.." ],
   bun:  [".....HH.....","....HHHH....","..HHHHHHHH..",".HHHHHHHHHH.",".HHSSSSSSHH.","..HSEESEESH.","..HSKMMMKSH.","...SSSSSSS.." ],
@@ -269,64 +269,23 @@ const LEGS_DUCK = ["..PP....PP..","..BBBB..BBBB"];
 const HERO_S=2.6, HERO_W=12*HERO_S, HERO_H=18*HERO_S;
 const HERO_H_DUCK=(8+4+2)*HERO_S;   // cabeça 8 + metade do tronco 4 + pernas curtas 2
 
+/* mesma mistura de cor usada na timeline (index.html), pra bochecha ficar
+   consistente com qualquer tom de pele em vez de um rosa fixo */
+function mixHex(a, b, amt){
+  const A = parseInt(a.slice(1),16), B = parseInt(b.slice(1),16);
+  const ch = s => [ (A>>s)&255, (B>>s)&255 ];
+  const m = s => { const [x,y]=ch(s); return Math.round(x + (y-x)*amt); };
+  return '#' + ((1<<24) | (m(16)<<16) | (m(8)<<8) | m(0)).toString(16).slice(1);
+}
 function heroPal(ch){
-  /* estilo minimalista: sorrisinho rosado discreto (M) e bochecha (K) */
-  return { H:HAIR[ch.hair], S:SKIN[ch.skin], E:'#1a1526', M:'#e0a597', K:'#ff8fa3',
+  /* estilo minimalista: sem boca visível (M vira pele), só bochecha — igual à timeline */
+  const skin = SKIN[ch.skin];
+  return { H:HAIR[ch.hair], S:skin, E:'#1a1526', M:skin, K:mixHex(skin,'#ff6f91',.34),
            C:ch.color1, D:ch.color2, G:ch.accent, P:ch.color2, B:'#161225' };
 }
 
-/* ══════════ SPRITES EM PNG — arquitetura ══════════
-   Cada personagem do elenco fixo pode ter uma pasta de sprites em
-   assets/characters/<pasta>/{idle,run_01,run_02,run_03,jump,crouch}.png
-   (fundo transparente, ~32x48 ou 48x64px — a resolução da imagem não
-   importa pro jogo, ela sempre é desenhada no tamanho HERO_W x HERO_H).
-
-   Se os arquivos ainda não existirem (ou falharem ao carregar), a
-   personagem cai automaticamente no desenho procedural antigo — dá pra
-   integrar uma personagem PNG de cada vez sem quebrar as outras nem
-   mexer em mais nada. Personagens criadas no editor (id 'custom') nunca
-   têm pasta própria e sempre usam o desenho procedural.
-
-   `ch.id` é o identificador interno (usado no leaderboard etc.) — o
-   nome da pasta de assets pode ser diferente dele; ver SPRITE_FOLDER. */
-const SPRITE_FRAMES = ['idle','run_01','run_02','run_03','jump','crouch'];
-const SPRITE_FOLDER = { ada:'ada', grace:'grace', katherine:'katherine', hamilton:'margaret' };
-/* sobe esse número toda vez que os arquivos de assets/characters/ mudarem —
-   evita que o navegador (ou o cache do GitHub Pages) sirva uma versão antiga
-   ou um 404 antigo em cache pra quem já visitou o jogo antes */
-const SPRITE_VERSION = 'v2';
-const spriteCache = {}; // { [charId]: { images:{frame:Image}, loaded:{frame:bool} } }
-
-function loadCharacterSprites(charId){
-  const folder = SPRITE_FOLDER[charId];
-  if(!folder) return null;               // sem pasta conhecida (ex.: personagem custom) — não tenta carregar
-  if(spriteCache[charId]) return spriteCache[charId];
-  const entry = { images:{}, loaded:{} };
-  SPRITE_FRAMES.forEach(frame=>{
-    const img = new Image();
-    entry.loaded[frame] = false;
-    img.onload = ()=>{ entry.loaded[frame] = true; };
-    img.onerror = ()=>{ entry.loaded[frame] = false; };
-    img.src = `assets/characters/${folder}/${frame}.png?${SPRITE_VERSION}`;
-    entry.images[frame] = img;
-  });
-  spriteCache[charId] = entry;
-  return entry;
-}
-function hasSpriteFrame(charId, frame){
-  const e = spriteCache[charId];
-  if(!e) return false;
-  const img = e.images[frame];
-  return !!(e.loaded[frame] && img.complete && img.naturalWidth>0);
-}
-function heroFrameName(duck, legFrame, onGround){
-  if(duck) return 'crouch';
-  if(onGround===false) return 'jump';
-  return 'run_0'+((legFrame%3)+1);
-}
-
-/* desenho antigo: personagem inteira montada por grade de texto (fallback) */
-function drawHeroProcedural(ch,x,y,duck,legFrame,onGround){
+/* personagem inteira montada por grade de texto — mesmo estilo da timeline */
+function drawHero(ch,x,y,duck,legFrame,onGround){
   cx.save();
   if(flashRed>0) cx.globalAlpha=.55;
   if(duck){
@@ -338,22 +297,6 @@ function drawHeroProcedural(ch,x,y,duck,legFrame,onGround){
     drawGrid(grid, heroPal(ch), x-HERO_W/2, y-HERO_H, HERO_S);
   }
   cx.restore();
-}
-
-/* ponto de entrada único, chamado em todo o jogo — decide sprite PNG vs. procedural */
-function drawHero(ch,x,y,duck,legFrame,onGround){
-  loadCharacterSprites(ch.id);
-  const frame = heroFrameName(duck, legFrame, onGround);
-  if(hasSpriteFrame(ch.id, frame)){
-    const w=HERO_W, h=duck?HERO_H_DUCK:HERO_H;
-    cx.save();
-    if(flashRed>0) cx.globalAlpha=.55;
-    cx.imageSmoothingEnabled=false;
-    cx.drawImage(spriteCache[ch.id].images[frame], x-w/2, y-h, w, h);
-    cx.restore();
-  } else {
-    drawHeroProcedural(ch,x,y,duck,legFrame,onGround);
-  }
 }
 
 /* ── CHEFES: 16 col × 22 linhas — cabeça 7 · tronco 8 · pernas 4 · pés 3 ── */
@@ -443,30 +386,6 @@ function getSprite(hero, shape){
   if(sig && sig[shape]) return sig[shape];
   if(SHARED_GRIDS[shape]) return [ SHARED_GRIDS[shape], tintedPal(shape, hero) ];
   return SPRITES[shape];
-}
-
-/* ══════════ SPRITES DE OBSTÁCULO EM PNG — mesma arquitetura dos personagens ══════════
-   assets/obstacles/<pasta>/<shape em minúsculo>.png, fundo transparente.
-   Cobre só os obstáculos-assinatura (BUG e CODE) de cada personagem, que são os
-   que têm forma própria; os 6 compartilhados continuam desenhados por código.
-   Sem arquivo (ou falha ao carregar) → cai automático no desenho procedural,
-   igual ao sistema de sprites de corrida — dá pra integrar um de cada vez. */
-const obstacleSpriteCache = {}; // { 'charId:SHAPE': {img, loaded} }
-function loadObstacleSprite(charId, shape){
-  const folder = SPRITE_FOLDER[charId];
-  if(!folder) return null;
-  const key = charId+':'+shape;
-  if(obstacleSpriteCache[key]) return obstacleSpriteCache[key];
-  const entry = { img:new Image(), loaded:false };
-  entry.img.onload = ()=>{ entry.loaded=true; };
-  entry.img.onerror = ()=>{ entry.loaded=false; };
-  entry.img.src = `assets/obstacles/${folder}/${shape.toLowerCase()}.png?${SPRITE_VERSION}`;
-  obstacleSpriteCache[key] = entry;
-  return entry;
-}
-function hasObstacleSprite(charId, shape){
-  const e = obstacleSpriteCache[charId+':'+shape];
-  return !!(e && e.loaded && e.img.complete && e.img.naturalWidth>0);
 }
 
 /* ══════════ PERSONAGENS — cada uma com especial e chefe próprios ══════════ */
@@ -1105,17 +1024,10 @@ function drawObstacles(){
       cx.fillStyle='rgba(247,195,67,.18)';
       cx.beginPath(); cx.arc(o.x+o.w/2,o.y+o.h/2, o.w*.8+Math.sin(t*.15)*3, 0, 6.28); cx.fill();
     }
+    const [grid,pal]=getSprite(hero, def.shape);
     const ghost = player.freeze>0 && def.deadly;   // ALGORITMO: quase transparente e atravessável
-    const isSignature = SIGNATURE_SPRITES[hero.id] && SIGNATURE_SPRITES[hero.id][def.shape];
-    if(isSignature) loadObstacleSprite(hero.id, def.shape);
     if(ghost) cx.globalAlpha=.2;
-    if(isSignature && hasObstacleSprite(hero.id, def.shape)){
-      cx.imageSmoothingEnabled=false;
-      cx.drawImage(obstacleSpriteCache[hero.id+':'+def.shape].img, o.x, o.y, o.w, o.h);
-    } else {
-      const [grid,pal]=getSprite(hero, def.shape);
-      drawGrid(grid,pal,o.x,o.y,o.w/grid[0].length);
-    }
+    drawGrid(grid,pal,o.x,o.y,o.w/grid[0].length);
     if(ghost) cx.globalAlpha=1;
   });
 }
