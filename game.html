@@ -115,13 +115,17 @@ html,body{height:100vh}
   background:var(--panel);border:2px solid var(--violet);color:var(--text);padding:9px 12px;cursor:pointer}
 #backBtn:active{background:var(--line)}
 @media (pointer:coarse){ #backBtn{font-size:.42rem;padding:8px 10px} }
-/* tela cheia — mesmo canto do botão voltar (nunca aparecem juntos: só um
-   deles cabe em cada estado do jogo) */
-#fsBtn{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));
-  left:calc(10px + env(safe-area-inset-left));z-index:6;font-family:inherit;font-size:.5rem;
-  background:var(--panel);border:2px solid var(--cyan);color:var(--text);padding:9px 12px;cursor:pointer}
-#fsBtn:active{background:var(--line)}
-@media (pointer:coarse){ #fsBtn{font-size:.42rem;padding:8px 10px} }
+/* dica de "adicionar à tela de início" — só pra iPhone/Safari (onde não dá
+   pra pedir tela cheia numa aba comum), aparece sozinha, sem precisar de
+   botão pra descobrir; mesmo canto do botão voltar (nunca aparecem juntos) */
+#iosHint{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));
+  left:calc(10px + env(safe-area-inset-left));z-index:6;max-width:200px;
+  align-items:center;gap:8px;font-family:inherit;font-size:.42rem;line-height:1.5;
+  background:var(--panel);border:2px solid var(--cyan);color:var(--text);padding:8px}
+#iosHint img{width:28px;height:28px;image-rendering:pixelated;flex:none}
+#iosHint button{position:absolute;top:-8px;right:-8px;width:18px;height:18px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--cyan);color:var(--text);font-family:inherit;
+  font-size:.5rem;line-height:1;padding:0;cursor:pointer}
 /* setas de trocar personagem — só no mobile, cantos livres da tela de seleção */
 #charNavBar{display:none}
 @media (pointer:coarse){
@@ -185,7 +189,11 @@ html,body{height:100vh}
   <canvas id="gameCanvas" class="rainbowFrameThin" width="1080" height="608"></canvas>
   <button id="lbEntryBtn">🏆 VER RANKING</button>
   <button id="backBtn">← VOLTAR</button>
-  <button id="fsBtn">⛶ TELA CHEIA</button>
+  <div id="iosHint">
+    <img src="assets/icon-192.png" alt="">
+    <span>adicione à tela de início pra jogar em tela cheia (toque em compartilhar ↑)</span>
+    <button id="iosHintClose" aria-label="Fechar">×</button>
+  </div>
   <div id="charNavBar">
     <button id="btnCharPrev" aria-label="Personagem anterior">◀</button>
     <button id="btnCharNext" aria-label="Próxima personagem">▶</button>
@@ -1296,30 +1304,16 @@ document.getElementById('lbBtn').addEventListener('click', openLeaderboard);
 document.getElementById('lbTopLink').addEventListener('click', openLeaderboard);
 document.getElementById('lbEntryBtn').addEventListener('click', openLeaderboard);
 document.getElementById('backBtn').addEventListener('click', ()=>{ if(state==='LEADERBOARD') state=lbFrom; });
-/* tela cheia: funciona direto no Android/desktop; no iPhone o Safari não
-   deixa site comum entrar em tela cheia, então avisamos o atalho real
-   (adicionar à tela de início) em vez de falhar em silêncio */
+/* iPhone/Safari não deixa site comum entrar em tela cheia (diferente do
+   Android), então em vez de um botão que não funciona de verdade, avisamos
+   sozinhos o atalho real: instalar na tela de início */
 function isIOS(){ return /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1); }
 function inStandaloneMode(){ return window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true; }
-async function toggleFullscreen(){
-  const el=document.documentElement;
-  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen;
-  const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen;
-  const isFs = document.fullscreenElement || document.webkitFullscreenElement;
-  try{
-    if(!isFs){
-      if(!req) throw new Error('unsupported');
-      await req.call(el);
-    } else if(exit){
-      await exit.call(document);
-    }
-  }catch(err){
-    if(isIOS() && !inStandaloneMode()){
-      alert('O Safari do iPhone não permite tela cheia numa aba comum.\nToque em Compartilhar (□↑) e depois em "Adicionar à Tela de Início" — abrindo por lá o jogo já fica sem a barra de endereço.');
-    }
-  }
-}
-document.getElementById('fsBtn').addEventListener('click', toggleFullscreen);
+const iosHintDismissed = ()=> localStorage.getItem('sr_hideIosHint')==='1';
+document.getElementById('iosHintClose').addEventListener('click', ()=>{
+  localStorage.setItem('sr_hideIosHint','1');
+  document.getElementById('iosHint').style.display='none';
+});
 /* mesmos botões ◀▶ servem pra trocar personagem na seleção (toque único)
    e pra mover na corrida (segurar = mover contínuo, igual segurar A/D) */
 function cycleChar(dir){ const tot=CHARS.length; selIdx=(selIdx+dir+tot)%tot; SFX.select(); }
@@ -1364,7 +1358,7 @@ function drawLeaderboard(){
 /* ══════════ LOOP ══════════ */
 const topbarEl=document.getElementById('topbar'), lbEntryBtn=document.getElementById('lbEntryBtn'),
       backBtn=document.getElementById('backBtn'), charNavBar=document.getElementById('charNavBar'),
-      fsBtn=document.getElementById('fsBtn');
+      iosHint=document.getElementById('iosHint');
 function frame(){
   t++;
   if(shake>0) shake--;
@@ -1376,7 +1370,7 @@ function frame(){
   lbEntryBtn.style.display=(state==='SELECT' && getComputedStyle(topbarEl).display==='none')?'block':'none';
   // voltar: visível sempre que dá pra voltar de onde se está (hoje só o ranking)
   backBtn.style.display=(state==='LEADERBOARD')?'block':'none';
-  fsBtn.style.display=(state!=='LEADERBOARD')?'block':'none';
+  iosHint.style.display=(state!=='LEADERBOARD' && isIOS() && !inStandaloneMode() && !iosHintDismissed())?'flex':'none';
   // setas ◀▶: trocam personagem na seleção, movem na corrida — só em telas de toque
   charNavBar.style.display=((state==='SELECT'||state==='RUN') && matchMedia('(pointer:coarse)').matches)?'block':'none';
 
