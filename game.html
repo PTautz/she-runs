@@ -725,8 +725,10 @@ btn('btnSkill',()=>{
 /* toque no jogo: arrastar move a personagem (corrida) ou o cursor (desvio do chefe) */
 let touchDrag=null;
 /* toque na tela do jogo em si: só o desvio do chefe usa arrastar (precisão fina).
-   Durante a corrida o toque na tela NÃO faz mais nada — pular/abaixar/mover são
-   só pelos botões dedicados, pra evitar pulo/movimento sem querer. */
+   Durante a corrida e no menu do chefe o toque na tela NÃO faz mais nada —
+   mover/escolher são só pelos botões dedicados, pra evitar ação sem querer
+   (no menu, tocar em qualquer lugar confirmava a opção que já estava
+   selecionada, sem dar chance de trocar antes). */
 cv.addEventListener('touchstart',e=>{
   e.preventDefault();
   if(state==='BOSSDODGE'){
@@ -734,7 +736,7 @@ cv.addEventListener('touchstart',e=>{
     touchDrag={x:e.touches[0].clientX-r.left, y:e.touches[0].clientY-r.top};
     return;
   }
-  if(state==='RUN') return;   // corrida: toque na tela não faz nada, só os botões
+  if(state==='RUN'||state==='BOSSMENU') return;   // só os botões dedicados
   primaryAction();
 },{passive:false});
 cv.addEventListener('touchmove',e=>{
